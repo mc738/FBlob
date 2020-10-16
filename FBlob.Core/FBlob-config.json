@@ -1,0 +1,44 @@
+{
+  "version": 1,
+  "blobTypes": [
+    {
+      "name": "Json",
+      "contentType": "application/json",
+      "extension": ".json"
+    },
+    {
+      "name": "Binary",
+      "contentType": "application/octet-stream",
+      "extension": ".data"
+    },
+    {
+      "name": "Text",
+      "contentType": "text/plain",
+      "extension": ".txt"
+    }
+  ],
+  "hashTypes": [
+    "MD5",
+    "SHA1",
+    "SHA256",
+    "SHA512"
+  ],
+  "sourceTypes": [
+    "Url",
+    "File",
+    "Service"
+  ],
+  "encryptionTypes": [
+    "None"
+  ],
+  "users": [],
+  "generalReference": "ACC784EA-3B2A-42D3-B989-19ED99E80ABE",
+  "collections": [
+    {
+      "name": "_logs",
+      "reference": "F0068BEE-B49D-4252-B6BD-282A66676317",
+      "allowAnonymousRead": true,
+      "allowAnonymousWrite": false 
+    }
+  ]
+}
