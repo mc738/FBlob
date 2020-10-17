@@ -43,7 +43,7 @@ module Blobs =
 
     let add connection (newBlob: NewBlob) =
         let hash =
-            Convert.ToBase64String(FUtil.Hashing.sha1 newBlob.Data)
+            HashTypes.toHex(FUtil.Hashing.sha1 newBlob.Data)
         // https://docs.microsoft.com/en-us/dotnet/standard/data/sqlite/blob-io
         let sql = """
         INSERT INTO blobs (reference, collection_ref, data, hash, salt, created_on, metadata_blob, key_ref, type, path, encrypted, hash_type, encryption_type)
@@ -62,7 +62,7 @@ module Blobs =
         |> ignore
         comm.Parameters.AddWithValue("@hash", hash)
         |> ignore
-        comm.Parameters.AddWithValue("@salt", Convert.ToBase64String(FUtil.Passwords.generateSalt 16))
+        comm.Parameters.AddWithValue("@salt", HashTypes.toHex(FUtil.Passwords.generateSalt 16))
         |> ignore
         comm.Parameters.AddWithValue("@now", DateTime.UtcNow)
         |> ignore

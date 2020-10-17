@@ -10,6 +10,12 @@ open Microsoft.Data.Sqlite
 open Peeps
 open FBlob.Core.StoreConfig
 
+type Context =
+    { Connection: SqliteConnection
+      Cache: Map<Guid, byte array>
+      Logger: Logger
+      GeneralReference: Guid }
+
 module Configuration =
     [<CLIMutable>]
     type Config =
@@ -176,12 +182,6 @@ module Initialization =
         createCollections context config.Collections
         |> ignore
     
-type Context =
-    { Connection: SqliteConnection
-      Cache: Map<Guid, byte array>
-      Logger: Logger
-      GeneralReference: Guid }
-
 module Blobs =
 
     open DAL.Blobs

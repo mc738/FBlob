@@ -75,3 +75,69 @@ module Models =
           CreateOn: DateTime }
 
     and JsonBlob = string
+
+/// Common helpers for blob types.
+module BlobTypes =
+
+    open Models
+
+    let json =
+        { Name = "Json"
+          ContentType = "application/json"
+          Extension = "json" }
+
+    let text =
+        { Name = "Text"
+          ContentType = "text/json"
+          Extension = "txt" }
+
+    let binary =
+        { Name = "Binary"
+          ContentType = "application/oct-stream"
+          Extension = "bin" }
+
+
+    /// TODO Use this for config.
+    let supportedTypes = [ json; text; binary ]
+
+module HashTypes =
+
+    open Models
+    
+    let (md5: HashType) = { Name = "MD5" }
+    
+    let (sha1: HashType) = { Name = "SHA1" }
+
+    let (sha2: HashType) = { Name = "SHA2" }  
+
+    let (sha256: HashType) = { Name = "SHA256" }  
+                                                                              
+    let (sha512: HashType) = { Name = "SHA512" }
+
+    let sha1Hasher data = FUtil.Hashing.sha1 data
+
+    let hashData (hashType: HashType) data =
+        match hashType.Name with
+        | "MD5" -> Ok(sha1Hasher data) // TODO fix this - upstream change to FUlit.
+        | "SHA1" -> Ok(sha1Hasher data)
+        | "SHA2" -> Ok(sha1Hasher data) // TODO fix this - upstream change to FUlit.
+        | "SHA256" -> Ok(sha1Hasher data) // TODO fix this - upstream change to FUlit.
+        | "SHA512" -> Ok(sha1Hasher data) // TODO fix this - upstream change to FUlit.
+        | _ -> Error(sprintf "Algorithm `%s` not supported" hashType.Name)
+        
+ 
+ 
+ 
+ 
+ 
+
+    let toHex data =
+        data                                                                
+        |> Array.map (fun (x:byte) -> System.String.Format("{0:X2}", x))
+        |> String.concat String.Empty
+    
+    let hashToHex (hashType: HashType) data =                                   
+        match hashData hashType data with           
+        | Ok h ->                                         
+            Ok(toHex h)                                        
+        | Error e -> Error(e)                                                            

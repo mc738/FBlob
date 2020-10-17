@@ -21,15 +21,15 @@ let main argv =
     
     let context = initializeStore config path
 
-    let blobType = {
-        Name = "Json"
-        ContentType = "application/json"
-        Extension = "json"
-    }
+    let blobType =
+        { Name = "Json"
+          ContentType = "application/json"
+          Extension = "json" }
+
     
     let hashType: HashType = { Name = "SHA1" }
     
-    let ref = Blobs.addGeneralBlob context blobType hashType (Encoding.UTF8.GetBytes """{"message": "Hello, World!"}""")
+    let ref = Blobs.addGeneralBlob context BlobTypes.json hashType (Encoding.UTF8.GetBytes """{"message": "Hello, World!"}""")
     
     match Blobs.getBlob context ref with
     | Some (bRef, cRef, data) -> 
