@@ -2,6 +2,7 @@ module FBlob.Core.DAL
 
 open System
 open System.IO
+open FUtil
 open Microsoft.Data.Sqlite
 open FBlob.Core.Models
 
@@ -11,15 +12,13 @@ open FBlob.Core.Models
 module Helpers =
     let runNonQuery connection name sql =
 
-        use comm =
-            new SqliteCommand(sql, connection)
+        use comm = new SqliteCommand(sql, connection)
 
         comm.ExecuteNonQuery()
 
     let runSeedQuery connection name sql (parameters: Map<string, string>) =
 
-        let comm =
-            new SqliteCommand(sql, connection)
+        let comm = new SqliteCommand(sql, connection)
 
         parameters
         |> Map.map (fun k v -> comm.Parameters.AddWithValue(k, v))
@@ -31,6 +30,8 @@ module Helpers =
 
 module Blobs =
 
+    open Models
+
     type NewBlob =
         { Reference: Guid
           CollectionReference: Guid
@@ -41,9 +42,8 @@ module Blobs =
           HashType: HashType
           EncryptionType: EncryptionType }
 
-    let add connection (newBlob: NewBlob) =
-        let hash =
-            HashTypes.toHex(FUtil.Hashing.sha1 newBlob.Data)
+
+    let private insertBlob connection newBlob hash =
         // https://docs.microsoft.com/en-us/dotnet/standard/data/sqlite/blob-io
         let sql = """
         INSERT INTO blobs (reference, collection_ref, data, hash, salt, created_on, metadata_blob, key_ref, type, path, encrypted, hash_type, encryption_type)
@@ -51,8 +51,8 @@ module Blobs =
         SELECT last_insert_rowid();
         """
 
-        use comm =
-            new SqliteCommand(sql, connection)
+        // TODO Add error handling in here.
+        use comm = new SqliteCommand(sql, connection)
 
         comm.Parameters.AddWithValue("@ref", newBlob.Reference.ToString())
         |> ignore
@@ -62,7 +62,7 @@ module Blobs =
         |> ignore
         comm.Parameters.AddWithValue("@hash", hash)
         |> ignore
-        comm.Parameters.AddWithValue("@salt", HashTypes.toHex(FUtil.Passwords.generateSalt 16))
+        comm.Parameters.AddWithValue("@salt", ConversionHelpers.bytesToBase64 (Passwords.generateSalt 16)) // TODO Add `generateSaltHex` upstream - FUtil.
         |> ignore
         comm.Parameters.AddWithValue("@now", DateTime.UtcNow)
         |> ignore
@@ -87,36 +87,69 @@ module Blobs =
             new SqliteBlob(connection, "blobs", "data", rowId)
 
         ms.CopyTo(wStream)
-        
+
+        Ok(rowId)
+
+    let add connection (newBlob: NewBlob) =
+        // Prepare the new blob and insert.
+        // TODO Make preparation a pipeline.
+        match Hashing.hashData newBlob.HashType newBlob.Data with
+        | Ok h -> insertBlob connection newBlob h
+        | Error e -> Error e
+
     let getByReference connection (reference: Guid) =
-        
+
         let sql = """
-SELECT * FROM blobs
-WHERE reference = @ref
-"""
+        SELECT 
+	        b.reference, b.collection_ref, b."data", b.hash, b.salt, b.created_on, b.key_ref, b.encrypted, b."path", bt.name, bt.content_type, bt.extension, ht.name, et.name
+        FROM 
+	        blobs b
+        JOIN collections c
+        ON b.collection_ref = c.reference
+        JOIN blob_types bt
+        ON b."type" = bt.name
+        JOIN hash_types ht 
+        ON b.hash_type = ht.name
+        JOIN encryption_types et 
+        ON b.encryption_type = et.name
+        """
+
         use comm = new SqliteCommand(sql, connection)
-        
-        comm.Parameters.AddWithValue("@ref", reference.ToString()) |> ignore
-        
+
+        comm.Parameters.AddWithValue("@ref", reference.ToString())
+        |> ignore
+
         comm.Prepare()
-        
+
         use ms = new MemoryStream()
-        
+
         use reader = comm.ExecuteReader()
-    
-        let r = [
-            while reader.Read() do
-                let reference = reader.GetGuid(0)
-                let collectionRef = reader.GetGuid(1)
+
+        let r =
+            [ while reader.Read() do
+
                 let dataStream = reader.GetStream(2)
 
                 dataStream.CopyTo(ms)
-                    
-                let i = (reference, collectionRef, ms.ToArray())
-                    
-                yield i
-        ]
-            
+
+                yield { Reference = reader.GetGuid(0)
+                        CollectionRef = reader.GetGuid(1)
+                        Data = ms.ToArray()
+                        Hash = reader.GetString(3)
+                        Salt = reader.GetString(4)
+                        CreatedOn = reader.GetDateTime(5)
+                        MetaDataBlob = ""
+                        KeyRef = reader.GetString(6)
+                        Encrypted = reader.GetBoolean(7)
+                        Path = reader.GetString(8)
+                        Type =
+                            { Name = reader.GetString(9)
+                              ContentType = reader.GetString(10)
+                              Extension = reader.GetString(11) }
+                        Properties = []
+                        HashType = { Name = reader.GetString(12) }
+                        EncryptionType = { Name = reader.GetString(13) } } ]
+
         match r.Length with
         | 1 -> Some r.Head
         | 0 -> None

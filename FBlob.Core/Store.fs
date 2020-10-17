@@ -205,9 +205,9 @@ module Blobs =
               HashType = hashType
               EncryptionType = { Name = "None" } }
 
-        add context.Connection newBlob
-        
-        reference
+        match add context.Connection newBlob with
+        | Ok _ -> Ok reference
+        | Result.Error e -> Result.Error e
 
 let createStore path = File.WriteAllBytes(path, Array.empty)
 

@@ -100,7 +100,7 @@ module BlobTypes =
     /// TODO Use this for config.
     let supportedTypes = [ json; text; binary ]
 
-module HashTypes =
+module Hashing =
 
     open Models
     
@@ -108,36 +108,18 @@ module HashTypes =
     
     let (sha1: HashType) = { Name = "SHA1" }
 
-    let (sha2: HashType) = { Name = "SHA2" }  
-
     let (sha256: HashType) = { Name = "SHA256" }  
+
+    let (sha384: HashType) = { Name = "SHA384" }  
                                                                               
     let (sha512: HashType) = { Name = "SHA512" }
 
-    let sha1Hasher data = FUtil.Hashing.sha1 data
-
     let hashData (hashType: HashType) data =
         match hashType.Name with
-        | "MD5" -> Ok(sha1Hasher data) // TODO fix this - upstream change to FUlit.
-        | "SHA1" -> Ok(sha1Hasher data)
-        | "SHA2" -> Ok(sha1Hasher data) // TODO fix this - upstream change to FUlit.
-        | "SHA256" -> Ok(sha1Hasher data) // TODO fix this - upstream change to FUlit.
-        | "SHA512" -> Ok(sha1Hasher data) // TODO fix this - upstream change to FUlit.
+        | "MD5" -> Ok(FUtil.Hashing.md5Hex data)
+        | "SHA1" -> Ok(FUtil.Hashing.sha1Hex data)
+        | "SHA256" -> Ok(FUtil.Hashing.sha256Hex data)
+        | "SHA384" -> Ok(FUtil.Hashing.sha384Hex data)
+        | "SHA512" -> Ok(FUtil.Hashing.sha512Hex data)
         | _ -> Error(sprintf "Algorithm `%s` not supported" hashType.Name)
         
- 
- 
- 
- 
- 
-
-    let toHex data =
-        data                                                                
-        |> Array.map (fun (x:byte) -> System.String.Format("{0:X2}", x))
-        |> String.concat String.Empty
-    
-    let hashToHex (hashType: HashType) data =                                   
-        match hashData hashType data with           
-        | Ok h ->                                         
-            Ok(toHex h)                                        
-        | Error e -> Error(e)                                                            
