@@ -16,6 +16,7 @@
         <e p="FBlob-config.json" t="Include" />
         <e p="FBlob.Core.fsproj" t="IncludeRecursive" />
         <e p="Store.fs" t="Include" />
+        <e p="StoreConfig.fs" t="Include" />
         <e p="bin" t="ExcludeRecursive" />
         <e p="obj" t="ExcludeRecursive" />
       </e>

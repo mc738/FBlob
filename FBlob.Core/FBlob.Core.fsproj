@@ -16,10 +16,11 @@
     </ItemGroup>
 
     <ItemGroup>
+      <Compile Include="StoreConfig.fs" />
+      <Compile Include="Store.fs" />
       <EmbeddedResource Include="FBlob-config.json">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </EmbeddedResource>
-      <Compile Include="Store.fs" />
     </ItemGroup>
 
 </Project>

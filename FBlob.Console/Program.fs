@@ -5,6 +5,7 @@ open System.IO
 open System.Text
 open FBlob.Core
 open FBlob.Core.Models
+open FBlob.Core.Store
 
 [<EntryPoint>]
 let main argv =
@@ -13,25 +14,28 @@ let main argv =
     
     let path = "/home/max/Data/test.db"
     
-    let context = DAL.createContext path config.GeneralReference
+    let context = createContext path config.GeneralReference
     
     context.Connection.Open()
-    // DAL.createStore path |> ignore
+    createStore path |> ignore
     
-    // let context = DAL.initializeStore config path
+    let context = initializeStore config path
 
-    // DAL.addGeneralBlob context "test_blob" (Encoding.UTF8.GetBytes """{"message": "Hello, World!"}""") |> ignore
+    let blobType = {
+        Name = "Json"
+        ContentType = "application/json"
+        Extension = "json"
+    }
     
-    let refString = "FC85F600-7AC6-4275-AE6C-00CD4AE859EF"
+    let hashType: HashType = { Name = "SHA1" }
     
-    let ref = Guid.Parse refString
+    let ref = Blobs.addGeneralBlob context blobType hashType (Encoding.UTF8.GetBytes """{"message": "Hello, World!"}""")
     
-    match DAL.Blobs.get context ref with
+    match Blobs.getBlob context ref with
     | Some (bRef, cRef, data) -> 
         let blob = Encoding.UTF8.GetString data 
-        printfn "Blob %s: %s" refString blob
-    | None -> printfn "No blob found with reference `%s`" refString
-        
-        
+        printfn "Blob %s: %s" (ref.ToString()) blob
+    | None -> printfn "No blob found with reference `%s`" (ref.ToString())
+         
     printfn "Hello World from F#!"
     0 // return an integer exit code
