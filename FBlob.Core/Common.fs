@@ -5,6 +5,7 @@ open System.Data.SqlTypes
 open System.IO
 open System.Text.Json
 open System.Text.Json.Serialization
+open FUtil
 
 module Models =
 
@@ -151,3 +152,48 @@ module Sources =
           
           [<JsonPropertyName("contentType")>] 
           ContentType: SourceContentType }
+
+
+
+module Encryption =
+    
+    open FUtil.Encryption
+    
+    let private encryptor context data = encryptBytesAes context data
+    
+    let private decryptor context cipher = decryptBytesAes context cipher
+    
+    /// Encrypt data and append the IV to the front.
+    /// The IV will be 16 bytes.
+    let encrypt (keys:Map<string,byte array>) keyRef data =
+        match keys.TryFind keyRef with
+        | Some k ->            
+            let context = {
+                Key = k
+                IV = FUtil.Passwords.generateSalt 16
+            }
+            
+            let encrypted = encryptor context data
+            
+            let r = Array.append context.IV encrypted 
+            
+            Ok (r)
+       
+        | None -> Error (sprintf "Key `%s` not found." keyRef)
+    
+    let decrypt (keys:Map<string,byte array>) keyRef data =
+        
+        match keys.TryFind keyRef with
+        | Some k ->
+            // TODO Add check that array is larger than 16.
+            let (iv, cipher) = Array.splitAt 16 data
+            
+            let context = {
+                Key = k
+                IV = iv
+            }
+            
+            Ok (decryptor context cipher)
+            
+        
+        | None -> Error (sprintf "Key `%s` not found." keyRef)
