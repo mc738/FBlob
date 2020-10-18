@@ -40,6 +40,7 @@ module Models =
           MetaData: JsonBlob
           AnonymousRead: bool
           AnonymousWrite: bool
+          Blobs: Blob list
           Properties: CollectionProperty list
           Sources: Source list
           UserPermissions: Map<Guid, UserCollectionPermissions> }
@@ -76,211 +77,49 @@ module Models =
 
     and JsonBlob = string
 
-    module Config =
+/// Common helpers for blob types.
+module BlobTypes =
 
-        type Table =
-            { Name: string
-              Sql: string
-              Order: int }
+    open Models
 
-        let tables =
-            [ { Name = "blob_properties"
-                Sql = """
-                CREATE TABLE blob_properties (
-                    blob_ref TEXT (36) NOT NULL
-                                       REFERENCES blobs (reference),
-                    [key]    TEXT      NOT NULL,
-                    value    TEXT      NOT NULL
-                );
-                """
-                Order = 100 }
-              { Name = "blob-types"
-                Sql = """
-                CREATE TABLE blob_types (
-                    name         TEXT PRIMARY KEY,
-                    content_type TEXT NOT NULL,
-                    extension    TEXT NOT NULL
-                );
-                """
-                Order = 2 }
-              { Name = "blobs"
-                Sql = """
-                CREATE TABLE blobs (
-                    reference       VARCHAR (36) PRIMARY KEY
-                                                 UNIQUE
-                                                 NOT NULL,
-                    collection_ref  TEXT (36)    REFERENCES collections (reference)
-                                                 NOT NULL,
-                    data            BLOB         NOT NULL,
-                    hash            TEXT         NOT NULL,
-                    salt            TEXT         NOT NULL
-                                                 UNIQUE,
-                    created_on      DATETIME     NOT NULL,
-                    metadata_blob   BLOB         NOT NULL
-                                                 DEFAULT "",
-                    key_ref         TEXT         NOT NULL,
-                    type            TEXT         REFERENCES blob_types (name)
-                                                 NOT NULL,
-                    path            VARCHAR      NOT NULL,
-                    encrypted       BOOLEAN      DEFAULT (0)
-                                                 NOT NULL,
-                    hash_type       TEXT         REFERENCES hash_types (name)
-                                                 NOT NULL,
-                    encryption_type TEXT         REFERENCES encryption_types (name)
-                );
-                """
-                Order = 50 }
-              { Name = "collection_properties"
-                Sql = """
-                CREATE TABLE collection_properties (
-                    collection_ref TEXT (36) REFERENCES collections (reference)
-                                             NOT NULL,
-                    [key]          TEXT      NOT NULL,
-                    value          TEXT      NOT NULL
-                );
-                """
-                Order = 101 }
-              { Name = "collections"
-                Sql = """
-                CREATE TABLE collections (
-                    reference       TEXT (36) PRIMARY KEY
-                                              NOT NULL
-                                              UNIQUE,
-                    name            TEXT      NOT NULL
-                                              UNIQUE,
-                    created_on      DATETIME  NOT NULL,
-                    metadata        BLOB      NOT NULL
-                                              DEFAULT "",
-                    anonymous_read  BOOLEAN   NOT NULL
-                                              DEFAULT (1),
-                    anonymous_write BOOLEAN   DEFAULT (0)
-                                              NOT NULL
-                );
-                """
-                Order = 10 }
-              { Name = "encryption_types"
-                Sql = """
-                CREATE TABLE encryption_types (
-                    name     TEXT PRIMARY KEY
-                                  NOT NULL,
-                    settings BLOB NOT NULL
-                );
-                """
-                Order = 4 }
-              { Name = "extensions"
-                Sql = """
-                CREATE TABLE extensions (
-                    name TEXT PRIMARY KEY
-                              NOT NULL,
-                    data BLOB NOT NULL
-                );
-                """
-                Order = 5 }
-              { Name = "hash_types"
-                Sql = """
-                CREATE TABLE hash_types (
-                    name TEXT NOT NULL
-                              PRIMARY KEY
-                );
-                """
-                Order = 6 }
-              { Name = "source_types"
-                Sql = """
-                CREATE TABLE source_types (
-                    name TEXT PRIMARY KEY
-                            NOT NULL
-                );
-                """
-                Order = 7 }
-              { Name = "sources"
-                Sql = """
-                CREATE TABLE sources (
-                    name           TEXT    PRIMARY KEY
-                                           NOT NULL,
-                    type           TEXT    REFERENCES source_type (name)
-                                           NOT NULL,
-                    path           TEXT    NOT NULL,
-                    collection_ref TEXT    REFERENCES collections (reference)
-                                           NOT NULL,
-                    get            BOOLEAN DEFAULT (1)
-                                           NOT NULL,
-                    [set]          BOOLEAN NOT NULL
-                                           DEFAULT (0),
-                    settings       BLOB    NOT NULL
-                );
-                """
-                Order = 8 }
-              { Name = "user_collection_permissions"
-                Sql = """
-                CREATE TABLE user_collection_permissions (
-                    user_ref       TEXT    REFERENCES users (reference)
-                                           NOT NULL,
-                    collection_ref TEXT    REFERENCES collections (reference)
-                                           NOT NULL,
-                    can_read       BOOLEAN DEFAULT (1)
-                                           NOT NULL,
-                    can_write      BOOLEAN DEFAULT (0)
-                                           NOT NULL
-                );
-                """
-                Order = 11 }
-              { Name = "users"
-                Sql = """
-                CREATE TABLE users (
-                    reference  TEXT (36) NOT NULL
-                                         UNIQUE
-                                         PRIMARY KEY,
-                    username   TEXT      NOT NULL
-                                         UNIQUE,
-                    password   TEXT      NOT NULL,
-                    salt       TEXT      NOT NULL,
-                    created_on DATETIME  NOT NULL
-                );
-                """
-                Order = 9 } ]
+    let json =
+        { Name = "Json"
+          ContentType = "application/json"
+          Extension = "json" }
 
-module Configuration =
-    [<CLIMutable>]
-    type Config =
-        { [<JsonPropertyName("blobTypes")>]
-          BlobTypes: BlobTypeConfig seq
-          [<JsonPropertyName("hashTypes")>]
-          HashTypes: string seq
-          [<JsonPropertyName("version")>]
-          Version: int
-          [<JsonPropertyName("sourceTypes")>]
-          SourceTypes: string seq
-          [<JsonPropertyName("users")>]
-          Users: string seq
-          [<JsonPropertyName("encryptionTypes")>]
-          EncryptionTypes: string seq
-          [<JsonPropertyName("collections")>]
-          Collections: CollectionConfig seq
-          [<JsonPropertyName("generalReference")>]
-          GeneralReference: Guid }
+    let text =
+        { Name = "Text"
+          ContentType = "text/json"
+          Extension = "txt" }
 
-    and [<CLIMutable>] CollectionConfig =
-        { [<JsonPropertyName("name")>]
-          Name: string
-          [<JsonPropertyName("reference")>]
-          Reference: string
-          [<JsonPropertyName("allowAnonymousRead")>]
-          AllowAnonymousRead: bool
-          [<JsonPropertyName("allowAnonymousWrite")>]
-          AllowAnonymousWrite: bool }
-   
-    and [<CLIMutable>] BlobTypeConfig =
-        { [<JsonPropertyName("name")>]
-          Name: string
-          [<JsonPropertyName("contentType")>]
-          ContentType: string
-          [<JsonPropertyName("extension")>]
-          Extension: string }
-         
-    let defaultConfigPath = "FBlob-config.json"
+    let binary =
+        { Name = "Binary"
+          ContentType = "application/oct-stream"
+          Extension = "bin" }
 
-    let loadConfig path =
-        let json = File.ReadAllText path
-        JsonSerializer.Deserialize<Config> json
 
-    let loadDefaultConfig = loadConfig defaultConfigPath
+    /// TODO Use this for config.
+    let supportedTypes = [ json; text; binary ]
+
+module Hashing =
+
+    open Models
+
+    let (md5: HashType) = { Name = "MD5" }
+
+    let (sha1: HashType) = { Name = "SHA1" }
+
+    let (sha256: HashType) = { Name = "SHA256" }
+
+    let (sha384: HashType) = { Name = "SHA384" }
+
+    let (sha512: HashType) = { Name = "SHA512" }
+
+    let hashData (hashType: HashType) data =
+        match hashType.Name with
+        | "MD5" -> Ok(FUtil.Hashing.md5Hex data)
+        | "SHA1" -> Ok(FUtil.Hashing.sha1Hex data)
+        | "SHA256" -> Ok(FUtil.Hashing.sha256Hex data)
+        | "SHA384" -> Ok(FUtil.Hashing.sha384Hex data)
+        | "SHA512" -> Ok(FUtil.Hashing.sha512Hex data)
+        | _ -> Error(sprintf "Algorithm `%s` not supported" hashType.Name)

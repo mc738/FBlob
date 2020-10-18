@@ -4,6 +4,13 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FBlob.Core", "FBlob.Core\FB
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FBlob.Console", "FBlob.Console\FBlob.Console.fsproj", "{E90159C2-5D6F-4EC9-9CC0-31801D4E1C24}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Documentation", "Documentation", "{D3FC2B19-7B9B-45D3-A7A9-FCA8F02F0581}"
+ProjectSection(SolutionItems) = preProject
+	README.md = README.md
+EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Scripts", "Scripts", "{5DD8AE2F-B6E4-4216-A281-6C620A95010B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

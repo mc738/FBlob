@@ -4,23 +4,24 @@
     {
       "name": "Json",
       "contentType": "application/json",
-      "extension": ".json"
+      "extension": "json"
     },
     {
       "name": "Binary",
       "contentType": "application/octet-stream",
-      "extension": ".data"
+      "extension": "bin"
     },
     {
       "name": "Text",
       "contentType": "text/plain",
-      "extension": ".txt"
+      "extension": "txt"
     }
   ],
   "hashTypes": [
     "MD5",
     "SHA1",
     "SHA256",
+    "SHA384",
     "SHA512"
   ],
   "sourceTypes": [
