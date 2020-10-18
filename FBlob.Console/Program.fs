@@ -17,25 +17,22 @@ let main argv =
     let context = createContext path config.GeneralReference
     
     context.Connection.Open()
-    createStore path |> ignore
+    // createStore path |> ignore
     
-    let context = initializeStore config path
-
-    let blobType =
-        { Name = "Json"
-          ContentType = "application/json"
-          Extension = "json" }
-
-    let hashType: HashType = { Name = "SHA1" }
+    // let context = initializeStore config path
+    let blobs = Blobs.getGeneralBlobs context
     
-    let ref = Blobs.addGeneralBlob context BlobTypes.json hashType (Encoding.UTF8.GetBytes """{"message": "Hello, World!"}""")
+    printfn "%A" blobs
+    
+    
+    let ref = Blobs.addGeneralBlob context BlobTypes.json Hashing.sha512 (Encoding.UTF8.GetBytes """{"message": "Hello, World!"}""")
     
     match ref with
     | Ok r ->
         match Blobs.getBlob context r with
         | Some b -> 
             let blob = Encoding.UTF8.GetString b.Data 
-            printfn "Blob %s: %s" (ref.ToString()) blob
+            printfn "Blob %s: %s\n%A" (r.ToString()) blob b 
         | None -> printfn "No blob found with reference `%s`" (ref.ToString())
     | Error e -> printfn "Error: %s" e
     

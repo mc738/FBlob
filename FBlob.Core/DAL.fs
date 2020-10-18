@@ -97,21 +97,49 @@ module Blobs =
         | Ok h -> insertBlob connection newBlob h
         | Error e -> Error e
 
+    let private createBlobFromReader (ms: MemoryStream) (reader: SqliteDataReader) =
+
+        ms.Flush()
+        ms.Position <- 0L
+        
+        let dataStream = reader.GetStream(2)
+
+        dataStream.CopyTo(ms)
+
+        { Reference = reader.GetGuid(0)
+          CollectionRef = reader.GetGuid(1)
+          Data = ms.ToArray()
+          Hash = reader.GetString(3)
+          Salt = reader.GetString(4)
+          CreatedOn = reader.GetDateTime(5)
+          MetaDataBlob = ""
+          KeyRef = reader.GetString(6)
+          Encrypted = reader.GetBoolean(7)
+          Path = reader.GetString(8)
+          Type =
+              { Name = reader.GetString(9)
+                ContentType = reader.GetString(10)
+                Extension = reader.GetString(11) }
+          Properties = []
+          HashType = { Name = reader.GetString(12) }
+          EncryptionType = { Name = reader.GetString(13) } }
+
     let getByReference connection (reference: Guid) =
 
         let sql = """
-        SELECT 
+        SELECT
 	        b.reference, b.collection_ref, b."data", b.hash, b.salt, b.created_on, b.key_ref, b.encrypted, b."path", bt.name, bt.content_type, bt.extension, ht.name, et.name
-        FROM 
+        FROM
 	        blobs b
         JOIN collections c
         ON b.collection_ref = c.reference
         JOIN blob_types bt
         ON b."type" = bt.name
-        JOIN hash_types ht 
+        JOIN hash_types ht
         ON b.hash_type = ht.name
-        JOIN encryption_types et 
+        JOIN encryption_types et
         ON b.encryption_type = et.name
+        WHERE b.reference = @ref;
         """
 
         use comm = new SqliteCommand(sql, connection)
@@ -127,33 +155,44 @@ module Blobs =
 
         let r =
             [ while reader.Read() do
-
-                let dataStream = reader.GetStream(2)
-
-                dataStream.CopyTo(ms)
-
-                yield { Reference = reader.GetGuid(0)
-                        CollectionRef = reader.GetGuid(1)
-                        Data = ms.ToArray()
-                        Hash = reader.GetString(3)
-                        Salt = reader.GetString(4)
-                        CreatedOn = reader.GetDateTime(5)
-                        MetaDataBlob = ""
-                        KeyRef = reader.GetString(6)
-                        Encrypted = reader.GetBoolean(7)
-                        Path = reader.GetString(8)
-                        Type =
-                            { Name = reader.GetString(9)
-                              ContentType = reader.GetString(10)
-                              Extension = reader.GetString(11) }
-                        Properties = []
-                        HashType = { Name = reader.GetString(12) }
-                        EncryptionType = { Name = reader.GetString(13) } } ]
+                yield createBlobFromReader ms reader ]
 
         match r.Length with
         | 1 -> Some r.Head
         | 0 -> None
         | _ -> Some r.Head // In the future this should be handled differently
+
+    let getByCollection connection (categoryReference: Guid) =
+        let sql = """
+        SELECT
+	        b.reference, b.collection_ref, b."data", b.hash, b.salt, b.created_on, b.key_ref, b.encrypted, b."path", bt.name, bt.content_type, bt.extension, ht.name, et.name
+        FROM
+	        blobs b
+        JOIN collections c
+        ON b.collection_ref = c.reference
+        JOIN blob_types bt
+        ON b."type" = bt.name
+        JOIN hash_types ht
+        ON b.hash_type = ht.name
+        JOIN encryption_types et
+        ON b.encryption_type = et.name
+        WHERE b.collection_ref = @collectionRef;
+        """
+
+        use comm = new SqliteCommand(sql, connection)
+
+        comm.Parameters.AddWithValue("@collectionRef", categoryReference.ToString())
+        |> ignore
+
+        comm.Prepare()
+
+        use ms = new MemoryStream()
+
+        use reader = comm.ExecuteReader()
+
+        
+        [ while reader.Read() do
+            yield createBlobFromReader ms reader ]
 
 module Collections =
     type NewCollection =

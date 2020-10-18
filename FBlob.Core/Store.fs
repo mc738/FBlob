@@ -185,15 +185,16 @@ module Initialization =
 module Blobs =
 
     open DAL.Blobs
-
+    
     let getBlob (context: Context) (reference: Guid) = getByReference context.Connection reference
+
+    let getBlobsByCategory (context: Context) (categoryReference: Guid) = getByCollection context.Connection categoryReference
+    
+    let getGeneralBlobs (context: Context) = getByCollection context.Connection context.GeneralReference
 
     let addGeneralBlob (context: Context) blobType hashType (data: byte array) =
 
         let reference = Guid.NewGuid()
-
-        let hash =
-            Convert.ToBase64String(FUtil.Hashing.sha1 data)
 
         let newBlob =
             { Reference = reference
@@ -208,6 +209,10 @@ module Blobs =
         match add context.Connection newBlob with
         | Ok _ -> Ok reference
         | Result.Error e -> Result.Error e
+
+module Categories =
+    
+    let i = 0
 
 let createStore path = File.WriteAllBytes(path, Array.empty)
 
