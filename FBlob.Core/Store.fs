@@ -45,7 +45,7 @@ module Configuration =
           AllowAnonymousRead: bool
           [<JsonPropertyName("allowAnonymousWrite")>]
           AllowAnonymousWrite: bool }
-   
+
     and [<CLIMutable>] BlobTypeConfig =
         { [<JsonPropertyName("name")>]
           Name: string
@@ -53,7 +53,7 @@ module Configuration =
           ContentType: string
           [<JsonPropertyName("extension")>]
           Extension: string }
-         
+
     let defaultConfigPath = "FBlob-config.json"
 
     let loadConfig path =
@@ -65,7 +65,7 @@ module Configuration =
 module Initialization =
 
     open Configuration
-    
+
     let defaultConfigPath = "FBlob-config.json"
 
     let createTable conn (table: Table) =
@@ -181,16 +181,19 @@ module Initialization =
         |> ignore
         createCollections context config.Collections
         |> ignore
-    
-module Blobs =
+
+module BlobStore =
 
     open DAL.Blobs
-    
-    let getBlob (context: Context) (reference: Guid) = getByReference context.Connection reference
 
-    let getBlobsByCategory (context: Context) (categoryReference: Guid) = getByCollection context.Connection categoryReference
-    
-    let getGeneralBlobs (context: Context) = getByCollection context.Connection context.GeneralReference
+    let getBlob (context: Context) (reference: Guid) =
+        getByReference context.Connection reference
+
+    let getBlobsByCollection (context: Context) (categoryReference: Guid) =
+        getByCollection context.Connection categoryReference
+
+    let getGeneralBlobs (context: Context) =
+        getByCollection context.Connection context.GeneralReference
 
     let addGeneralBlob (context: Context) blobType hashType (data: byte array) =
 
@@ -210,9 +213,31 @@ module Blobs =
         | Ok _ -> Ok reference
         | Result.Error e -> Result.Error e
 
-module Categories =
-    
-    let i = 0
+module CollectionStore =
+
+    open DAL.Collections
+
+    let addNew context anonRead anonWrite name =
+        let ref = Guid.NewGuid()
+
+        let collection =
+            { Name = name
+              Reference = ref
+              AnonymousRead = anonRead
+              AnonymousWrite = anonWrite }
+
+        add context.Connection collection |> ignore
+
+        ref
+
+    let get context reference =
+        DAL.Collections.get context.Connection reference
+
+    let getGeneral context =
+        DAL.Collections.get context.Connection context.GeneralReference
+
+
+let i = 0
 
 let createStore path = File.WriteAllBytes(path, Array.empty)
 
@@ -235,8 +260,10 @@ let initializeStore (config: Configuration.Config) path =
 
     context.Connection.Open()
 
-    Initialization.createTables context.Connection |> ignore
-    Initialization.seedData context.Connection config |> ignore
+    Initialization.createTables context.Connection
+    |> ignore
+    Initialization.seedData context.Connection config
+    |> ignore
 
     context
 

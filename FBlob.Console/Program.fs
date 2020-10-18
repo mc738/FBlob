@@ -20,16 +20,16 @@ let main argv =
     // createStore path |> ignore
     
     // let context = initializeStore config path
-    let blobs = Blobs.getGeneralBlobs context
+    let blobs = CollectionStore.getGeneral context
     
     printfn "%A" blobs
     
     
-    let ref = Blobs.addGeneralBlob context BlobTypes.json Hashing.sha512 (Encoding.UTF8.GetBytes """{"message": "Hello, World!"}""")
+    let ref = BlobStore.addGeneralBlob context BlobTypes.json Hashing.sha512 (Encoding.UTF8.GetBytes """{"message": "Hello, World!"}""")
     
     match ref with
     | Ok r ->
-        match Blobs.getBlob context r with
+        match BlobStore.getBlob context r with
         | Some b -> 
             let blob = Encoding.UTF8.GetString b.Data 
             printfn "Blob %s: %s\n%A" (r.ToString()) blob b 

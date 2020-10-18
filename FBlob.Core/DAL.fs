@@ -99,6 +99,7 @@ module Blobs =
 
     let private createBlobFromReader (ms: MemoryStream) (reader: SqliteDataReader) =
 
+        // Reset and empty the memory, to prevent data leakage.
         ms.Flush()
         ms.Position <- 0L
         
@@ -123,7 +124,7 @@ module Blobs =
           Properties = []
           HashType = { Name = reader.GetString(12) }
           EncryptionType = { Name = reader.GetString(13) } }
-
+    
     let getByReference connection (reference: Guid) =
 
         let sql = """
@@ -200,8 +201,8 @@ module Collections =
           Name: string
           AnonymousRead: bool
           AnonymousWrite: bool }
-
-    let add context collection =
+    
+    let add connection collection =
         let sql = """
         INSERT INTO collections
         VALUES (@ref, @name, @now, zeroblob(1), @anonRead, @anonWrite)
@@ -215,4 +216,43 @@ module Collections =
               ("@anonWrite", collection.AnonymousWrite.ToString()) ]
             |> Map.ofList
 
-        Helpers.runSeedQuery context "create_collection" sql p
+        Helpers.runSeedQuery connection "create_collection" sql p
+
+
+    let get connection reference =
+        let sql = """
+        SELECT * FROM collections WHERE reference = @ref;
+        """
+
+        use comm = new SqliteCommand(sql, connection)
+        
+        comm.Parameters.AddWithValue("@ref", reference.ToString()) |> ignore
+        
+        comm.Prepare()
+        
+        use reader = comm.ExecuteReader()
+
+        let c = [
+            while reader.Read() do
+                        
+            yield {
+                Reference = reader.GetGuid(0)
+                Name = reader.GetString(1)
+                CreatedOn = DateTime.Now // TODO fix this bug! reader.GetDateTime(2)
+                MetaData = ""
+                AnonymousRead = reader.GetBoolean(4)
+                AnonymousWrite = reader.GetBoolean(5)
+                Blobs = Blobs.getByCollection connection reference
+                Properties = []
+                Sources = []
+                UserPermissions = Map.empty
+            }
+        ]
+        
+        match c.Length with
+        | 1 -> Some c.Head
+        | 0 -> None
+        | _ -> Some c.Head
+            
+        
+        
