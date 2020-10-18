@@ -20,9 +20,10 @@ let main argv =
     // createStore path |> ignore
     
     // let context = initializeStore config path
-    let blobs = CollectionStore.getGeneral context
     
-    printfn "%A" blobs
+    // let blobs = CollectionStore.getGeneral context
+    
+    // printfn "%A" blobs
     
     
     let ref = BlobStore.addGeneralBlob context BlobTypes.json Hashing.sha512 (Encoding.UTF8.GetBytes """{"message": "Hello, World!"}""")
@@ -35,6 +36,11 @@ let main argv =
             printfn "Blob %s: %s\n%A" (r.ToString()) blob b 
         | None -> printfn "No blob found with reference `%s`" (ref.ToString())
     | Error e -> printfn "Error: %s" e
+    
+    let blobs = CollectionStore.getGeneral context
+    
+    printfn "%A" blobs
+    
     
     printfn "Hello World from F#!"
     0 // return an integer exit code
