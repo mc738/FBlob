@@ -123,3 +123,31 @@ module Hashing =
         | "SHA384" -> Ok(FUtil.Hashing.sha384Hex data)
         | "SHA512" -> Ok(FUtil.Hashing.sha512Hex data)
         | _ -> Error(sprintf "Algorithm `%s` not supported" hashType.Name)
+
+
+module Sources =
+
+    type SourceContentType =
+        | Json
+        | Text
+
+
+    [<CLIMutable>]
+    type UrlSourceSettings =
+        { [<JsonPropertyName("type")>]
+          Type: string
+          
+          [<JsonPropertyName("url")>] 
+          Url: string
+          
+          [<JsonPropertyName("get")>] 
+          Get: bool
+          
+          [<JsonPropertyName("set")>]
+          Set: bool
+          
+          [<JsonPropertyName("collection")>] 
+          Collection: bool
+          
+          [<JsonPropertyName("contentType")>] 
+          ContentType: SourceContentType }

@@ -7,6 +7,8 @@ open FBlob.Core
 open FBlob.Core.Models
 open FBlob.Core.Store
 
+let testUrl = "https://jsonplaceholder.typicode.com/posts"
+
 [<EntryPoint>]
 let main argv =
     

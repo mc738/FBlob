@@ -236,7 +236,6 @@ module CollectionStore =
     let getGeneral context =
         DAL.Collections.get context.Connection context.GeneralReference
 
-
 let i = 0
 
 let createStore path = File.WriteAllBytes(path, Array.empty)
