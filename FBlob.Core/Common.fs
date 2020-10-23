@@ -3,6 +3,7 @@ namespace FBlob.Core
 open System
 open System.Data.SqlTypes
 open System.IO
+open System.Net.Http
 open System.Text.Json
 open System.Text.Json.Serialization
 open FUtil
@@ -154,6 +155,17 @@ module Sources =
           ContentType: SourceContentType }
 
 
+    let getUrlSource (http :HttpClient) (url: string) = async {
+        let! response = http.GetAsync(url) |> Async.AwaitTask
+        match response.IsSuccessStatusCode with
+        | true ->
+            let! content = response.Content.ReadAsStringAsync() |> Async.AwaitTask
+            return Ok content 
+        | false ->
+            let! error = response.Content.ReadAsStringAsync() |> Async.AwaitTask
+            return Error error
+    }
+        
 
 module Encryption =
     
@@ -197,3 +209,5 @@ module Encryption =
             
         
         | None -> Error (sprintf "Key `%s` not found." keyRef)
+
+

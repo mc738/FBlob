@@ -21,6 +21,7 @@
       <EmbeddedResource Include="FBlob-config.json">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </EmbeddedResource>
+      <Compile Include="Parsing.fs" />
     </ItemGroup>
 
 </Project>

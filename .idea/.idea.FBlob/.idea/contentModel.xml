@@ -16,8 +16,17 @@
         <e p="DAL.fs" t="Include" />
         <e p="FBlob-config.json" t="Include" />
         <e p="FBlob.Core.fsproj" t="IncludeRecursive" />
+        <e p="Parsing.fs" t="Include" />
         <e p="Store.fs" t="Include" />
         <e p="StoreConfig.fs" t="Include" />
+        <e p="bin" t="ExcludeRecursive" />
+        <e p="obj" t="ExcludeRecursive" />
+      </e>
+      <e p="FBlob.Host" t="IncludeRecursive">
+        <e p="Engine.fs" t="Include" />
+        <e p="FBlob.Host.fsproj" t="IncludeRecursive" />
+        <e p="Program.fs" t="Include" />
+        <e p="WebHost" t="Include" />
         <e p="bin" t="ExcludeRecursive" />
         <e p="obj" t="ExcludeRecursive" />
       </e>

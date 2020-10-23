@@ -2,10 +2,28 @@
 
 open System
 open System.IO
+open System.Net.Http
 open System.Text
+open System.Text.Json
+open System.Text.Json.Serialization
 open FBlob.Core
 open FBlob.Core.Models
 open FBlob.Core.Store
+
+[<CLIMutable>]
+type Post = {
+    [<JsonPropertyName("userId")>]
+    UserId: int
+    
+    [<JsonPropertyName("id")>]
+    Id: int
+    
+    [<JsonPropertyName("title")>]
+    Title: string
+    
+    [<JsonPropertyName("body")>]
+    Body: string
+}
 
 let testUrl =
     "https://jsonplaceholder.typicode.com/posts"
@@ -13,6 +31,19 @@ let testUrl =
 [<EntryPoint>]
 let main argv =
 
+    
+    use http = new HttpClient()
+    
+    let r = Sources.getUrlSource http testUrl |> Async.RunSynchronously
+
+    match r with
+    | Ok s ->
+        let posts = Parsing.Json.tryParse<Post seq> s
+        
+        printfn "Success: %A" posts
+    | Error e -> printfn "Error: %s" e
+    
+    
     let data =
         (Encoding.UTF8.GetBytes """{"message": "Hello, World!"}""")
 
