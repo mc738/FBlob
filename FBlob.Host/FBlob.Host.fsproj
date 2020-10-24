@@ -6,7 +6,12 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <Folder Include="WebHost" />
+        <Compile Include="WebHost\Config.fs" />
+        <Compile Include="WebHost\DAL.fs" />
+        <Compile Include="WebHost\Http.fs" />
+        <Compile Include="WebHost\Routing.fs" />
+        <Compile Include="WebHost\ConnectionHandler.fs" />
+        <Compile Include="WebHost\Server.fs" />
         <Compile Include="Engine.fs" />
         <Compile Include="Program.fs" />
     </ItemGroup>
