@@ -5,24 +5,26 @@ open System.Net.Sockets
 open System.Text
 open FUtil
 open Peeps
+open FBlob.Host.Engine
 open FBlob.Host.WebHost.Routing
 open FBlob.Host.WebHost.Http
 open FBlob.Host.WebHost.Http.ContentTypes
 
 
 type Context =
-    { routes: Map<string, Route>
-      errorRoutes: ErrorRoutes
-      logger: Logger }
+    { Routes: Map<string, Route>
+      ErrorRoutes: ErrorRoutes
+      Instance: Instance
+      Logger: Logger }
 
-let standardHeaders =
+let private standardHeaders =
     seq {
         "Server", "SFS"
         "Connection", "close"
     }
 
 
-let createResponseHeaders (contentType: ContentType) contentLength (otherHeaders: (string * string) seq) =
+let private createResponseHeaders (contentType: ContentType) contentLength (otherHeaders: (string * string) seq) =
 
     let cDetails =
         seq {
@@ -35,7 +37,11 @@ let createResponseHeaders (contentType: ContentType) contentLength (otherHeaders
     |> Seq.append otherHeaders
     |> Map.ofSeq
 
-let createResponse (route: Route) (context: Context) =
+let private createResponse (route: Route) (context: Context) =
+    
+    // TODO Update to call the store.
+    // let _ = postRequest context.Instance.Processor
+    
     
     // Get the content type and content.
     let (contentType, content) =
@@ -68,10 +74,18 @@ let createResponse (route: Route) (context: Context) =
 let handlerRequest context request =
     let route =
             match request with
-            | Ok r -> matchRoute context.routes context.errorRoutes.notFound r.route
+            | Ok r -> matchRoute context.Routes context.ErrorRoutes.notFound r.Route
+                // TODO match on route type.
+                
+                // TODO translate HttpRequest into Request.
+                
+                // TODO call processor, send the request and create the http response.
+               
+                // TODO translate response into HttpResponse
+               
             | Result.Error e ->
                 // TODO Log error.
-                context.errorRoutes.badRequest
+                context.ErrorRoutes.badRequest
 
         // Create the response and serialize it.
     createResponse route context
@@ -82,7 +96,7 @@ let handleConnection (context: Context) (connection: TcpClient) =
     async {
 
         // For now accept a message, convert to string and send back a message.
-        context.logger.Post
+        context.Logger.Post
             { from = "Connection Handler"
               message = "In handler."
               time = DateTime.Now

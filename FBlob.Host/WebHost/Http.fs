@@ -27,17 +27,17 @@ open System.Text
 open Peeps
 
 type Request =
-    { verb: Verb
-      route: string
-      version: string
-      headers: Map<string, string>
-      body: Body option }
+    { Verb: Verb
+      Route: string
+      Version: string
+      Headers: Map<string, string>
+      Body: Body option }
 
 and Response =
-    { code: StatusCode
-      version: string
-      headers: Map<string, string>
-      body: Body option }
+    { Code: StatusCode
+      Version: string
+      Headers: Map<string, string>
+      Body: Body option }
 
 and Verb =
     | Get
@@ -50,7 +50,7 @@ and Verb =
     | Trace
     | Patch
 
-and StatusCode = { name: string; code: int16 }
+and StatusCode = { Name: string; Code: int16 }
 
 and Body =
     | Text of string
@@ -70,25 +70,25 @@ let getVerb (verb: string) =
     | _ -> Get
 
 
-let ok = { name = "Ok"; code = 200s }
+let private ok = { Name = "Ok"; Code = 200s }
 
-let created = { name = "Created"; code = 201s }
+let private created = { Name = "Created"; Code = 201s }
 
-let badRequest = { name = "Bad Request"; code = 400s }
+let private badRequest = { Name = "Bad Request"; Code = 400s }
 
-let unauthorized = { name = "Unauthorized"; code = 401s }
+let private unauthorized = { Name = "Unauthorized"; Code = 401s }
 
-let forbidden = { name = "Forbidden"; code = 403s }
+let private forbidden = { Name = "Forbidden"; Code = 403s }
 
-let notFound = { name = "Not Found"; code = 404s }
+let private notFound = { Name = "Not Found"; Code = 404s }
 
-let internalError =
-    { name = "Internal Server Error"
-      code = 500s }
+let private internalError =
+    { Name = "Internal Server Error"
+      Code = 500s }
 
-let notImplemented =
-    { name = "Not Implemented"
-      code = 501s }
+let private notImplemented =
+    { Name = "Not Implemented"
+      Code = 501s }
 
 let getStatus code =
     match code with
@@ -103,7 +103,7 @@ let getStatus code =
 
 /// Accepts 4 bytes representing i, i - 1, i - 2 & i - 3.
 /// Then flips them and checks if the are 13,10,13,10 ('\r\n\r\n').
-let checkForSplit index indexMinus1 indexMinus2 indexMinus3 =
+let private checkForSplit index indexMinus1 indexMinus2 indexMinus3 =
     match (indexMinus3, indexMinus2, indexMinus1, index) with
     | (13uy, 10uy, 13uy, 10uy) -> true
     | _ -> false
@@ -111,7 +111,7 @@ let checkForSplit index indexMinus1 indexMinus2 indexMinus3 =
 /// A recursive function to find the head/body split
 /// in a byte array representing a http message.
 /// If found the index will be that of the last character from the first '\r\n\r\n'.
-let rec findSplitIndex (data: byte array) (i: int) =
+let rec private findSplitIndex (data: byte array) (i: int) =
     let len = data.Length
     match i with
     | _ when len <= i -> Result.Error "Out of range."
@@ -124,7 +124,7 @@ let rec findSplitIndex (data: byte array) (i: int) =
 /// Get the header/body split index.
 /// If could Some(int) will be returned,
 /// if not the data is not http.
-let getHeaderSplitIndex (data: byte array) =
+let private getHeaderSplitIndex (data: byte array) =
 
     let i = findSplitIndex data 0
 
@@ -132,7 +132,7 @@ let getHeaderSplitIndex (data: byte array) =
     | Ok i -> Ok i
     | Result.Error message -> Result.Error message
 
-let createFirstLine (firstLine: string) =
+let private createFirstLine (firstLine: string) =
     let split = firstLine.Split(' ')
 
     if split.Length >= 3 then
@@ -143,15 +143,15 @@ let createFirstLine (firstLine: string) =
     else
         Result.Error "Unable to parse first line of request"
 
-let createHeader (header: string) =
+let private createHeader (header: string) =
     let split = header.Split(": ")
     if split.Length > 1 then (split.[0], split.[1]) else (split.[0], String.Empty)
 
-let createHeaders (headers: string list) =
+let private createHeaders (headers: string list) =
     headers |> List.map createHeader |> Map.ofList
 
 /// Create a request from a header string and body.
-let createRequest (body: Body option) (text: string) =
+let private createRequest (body: Body option) (text: string) =
     let (firstLine, rest) =
         text.Split "\r\n"
         |> List.ofArray
@@ -161,11 +161,11 @@ let createRequest (body: Body option) (text: string) =
     | Ok (verb, route, version) ->
         let headers = createHeaders rest
         Ok
-            { verb = getVerb verb
-              version = version
-              route = route
-              headers = headers
-              body = body }
+            { Verb = getVerb verb
+              Version = version
+              Route = route
+              Headers = headers
+              Body = body }
     | Result.Error message -> Result.Error message
 
 let deserializeRequest (data: byte array) =
@@ -192,7 +192,7 @@ let deserializeRequest (data: byte array) =
 
 
 /// Get a header value from a request.
-let getHeader (request: Request) key = request.headers.TryFind key
+let getHeader (request: Request) key = request.Headers.TryFind key
 
 
 let createResponse code headers body =
@@ -200,15 +200,15 @@ let createResponse code headers body =
     /// Get the response code and create the response.
     let status = getStatus code
 
-    { code = status
-      version = "1.1"
-      headers = headers
-      body = body }
+    { Code = status
+      Version = "1.1"
+      Headers = headers
+      Body = body }
 
 
-let serializeHeader headers key value = sprintf "%s%s: %s\r\n" headers key value
+let private serializeHeader headers key value = sprintf "%s%s: %s\r\n" headers key value
 
-let (+++) a b =
+let private (+++) a b =
     Seq.append a b
 
 /// Serialize a response to a byte array.
@@ -219,13 +219,13 @@ let serializeResponse (response: Response) =
 
     // TODO Make this more efficient!
     let firstLine =
-        sprintf "HTTP/%s %i %s\r\n" response.version response.code.code response.code.name
+        sprintf "HTTP/%s %i %s\r\n" response.Version response.Code.Code response.Code.Name
 
     let headerText =
-        response.headers |> Map.fold serializeHeader ""
+        response.Headers |> Map.fold serializeHeader ""
 
     let body =
-        match response.body with
+        match response.Body with
         | Some b ->
             match b with
             | Binary d -> d
@@ -240,9 +240,6 @@ let serializeResponse (response: Response) =
     +++ body
     |> Array.ofSeq
     
-    
-
-
 let requestHandler (logger: Logger) (data: byte array) =
 
     let request = deserializeRequest data

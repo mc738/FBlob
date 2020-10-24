@@ -3,6 +3,7 @@ module FBlob.Host.WebHost.Server
 open System
 open System.IO
 open System.Net.Sockets
+open FBlob.Host.Engine
 open Peeps
 open FBlob.Host.WebHost.Http
 open FBlob.Host.WebHost.ConnectionHandler
@@ -11,13 +12,13 @@ open FBlob.Host.WebHost.Routing
 let logger = Logger()
 
 // TODO Set these in config.
-let ip = "127.0.0.1"
-let port = 42000
+let private ip = "127.0.0.1"
+let private port = 42000
 
 /// The tcp listener.
-let listener = TcpListener.Create(port)
+let private listener = TcpListener.Create(port)
 
-let routes =
+let private routes =
     seq {
         { contentType = ContentTypes.Html
           routePaths = seq { "/" }
@@ -51,20 +52,16 @@ let notFound =
       routeType = RouteType.Static
       content = content }
 
-let routeMap = createRoutesMap routes
+let private routeMap = createRoutesMap routes
 
-let i = 0
 /// The listening loop.
-let rec listen (context:Context) =
+let rec private listen (context:Context) =
     // Await a connection.
     // This is blocking.
     let connection = listener.AcceptTcpClient()
 
     let handler = handleConnection context
-    
-    
-//        let routes = match context.routes.["/"].content with Some d -> d | None -> [||]
-    
+ 
     logger.Post
         { from = "Listener"
           message = "Connection received."
@@ -84,12 +81,13 @@ let rec listen (context:Context) =
     listen (context)
 
 /// Start the listening loop and accept incoming requests.
-let start =
+let private start instance =
 
     let context =
-        { logger = logger
-          routes = routeMap
-          errorRoutes =
+        { Logger = logger
+          Routes = routeMap
+          Instance = instance
+          ErrorRoutes =
               { notFound = notFound
                 internalError = notFound
                 unauthorized = notFound
@@ -115,3 +113,11 @@ let start =
     // Pass the listener to `listen` function.
     // This will recursively handle requests.
     listen (context) |> ignore
+    
+/// Run the web host.
+let private run (instance: Instance) = start instance
+    
+/// Create a delegated `RunType` for the web host.
+/// This can be passed to the hosting environment for execution.
+let createRunType = Delegated run
+    

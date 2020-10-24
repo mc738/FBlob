@@ -16,7 +16,7 @@ and RunType =
     | Internal of (Instance -> Async<Response>)
     /// Delegate the running of the host to provided function.
     /// Useful for situations when a program loop might be handled else where (such as the web host).
-    | Delegated of (Instance -> Async<unit>)
+    | Delegated of (Instance -> unit)
 
 and Request = { From: string }
 
@@ -63,11 +63,11 @@ let private internalRun (handler: Instance -> Async<Response>) (instance: Instan
     }
     
     // Force the result to be ignored, so it signatures match.
-    loop (handler, instance) |> Async.Ignore
+    loop (handler, instance) |> Async.RunSynchronously |> ignore
 
 /// Run the host, delegating the to provided function.
 /// The function will be responsible for the actual execution of the loop. 
-let private delegatedRun (handler: Instance -> Async<unit>) instance = handler instance
+let private delegatedRun (handler: Instance -> unit) instance = handler instance
     
 let run runType instance =
     match runType with
