@@ -10,6 +10,7 @@ module ContentTypes =
         | Json
         | JavaScript
         | Xml
+        | Literal of string
 
     let getCTString contentType =
         match contentType with
@@ -20,20 +21,21 @@ module ContentTypes =
         | Json -> "application/json"
         | JavaScript -> "text/javascript"
         | Xml -> "application/xml"
-
+        | Literal s -> s
+        
 open System.IO
 open System
 open System.Text
 open Peeps
 
-type Request =
+type HttpRequest =
     { Verb: Verb
       Route: string
       Version: string
       Headers: Map<string, string>
       Body: Body option }
 
-and Response =
+and HttpResponse =
     { Code: StatusCode
       Version: string
       Headers: Map<string, string>
@@ -190,10 +192,8 @@ let deserializeRequest (data: byte array) =
 
     | Result.Error message -> Result.Error message
 
-
 /// Get a header value from a request.
-let getHeader (request: Request) key = request.Headers.TryFind key
-
+let getHeader request key = request.Headers.TryFind key
 
 let createResponse code headers body =
 
@@ -205,16 +205,15 @@ let createResponse code headers body =
       Headers = headers
       Body = body }
 
-
 let private serializeHeader headers key value = sprintf "%s%s: %s\r\n" headers key value
 
 let private (+++) a b =
     Seq.append a b
 
 /// Serialize a response to a byte array.
-let serializeResponse (response: Response) =
+let serializeResponse response =
 
-    // Bytes for '\r\n\r\n'
+    // Extra bytes for '\r\n\r\n' split (only '\r\n' because each header already ends with '\r\n').
     let split = [| 13uy; 10uy |]
 
     // TODO Make this more efficient!
