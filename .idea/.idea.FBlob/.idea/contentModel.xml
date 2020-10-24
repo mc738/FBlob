@@ -27,6 +27,7 @@
         <e p="FBlob.Host.fsproj" t="IncludeRecursive" />
         <e p="Program.fs" t="Include" />
         <e p="WebHost" t="Include">
+          <e p="Common.fs" t="Include" />
           <e p="Config.fs" t="Include" />
           <e p="ConnectionHandler.fs" t="Include" />
           <e p="DAL.fs" t="Include" />
