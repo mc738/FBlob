@@ -37,22 +37,19 @@ let private createResponseHeaders (contentType: ContentType) contentLength (othe
     |> Seq.append otherHeaders
     |> Map.ofSeq
 
-let private createResponse (route: Route) (context: Context) =
+let private createResponse (context: Context) (route: Route) (request: Request option) =
     
     // TODO Update to call the store.
     // let _ = postRequest context.Instance.Processor
+    let contentType = route.ContentType
     
+    let (content, contentLength) =    
+        match request with
+        | Some r ->
+            let c = route.Handler r
+            (Some (Binary c), c.Length)          
+        | None -> (None, 0)
     
-    // Get the content type and content.
-    let (contentType, content) =
-        match route.routeType with
-        | RouteType.Static -> (route.contentType, route.content)
-
-    let contentLength =
-        match content with
-        | Some c -> c.Length
-        | None -> 0
-
     // Any other headers associated with this response,
     // i.e. none standard and now generated.
     let otherHeaders = Seq.empty
@@ -60,21 +57,15 @@ let private createResponse (route: Route) (context: Context) =
     // Make the headers.
     let headers = createResponseHeaders contentType contentLength otherHeaders
 
-    // Create the body.
-    let body =
-        match content with
-        | Some v -> Some(Binary v)
-        | None -> None
-
     // Create the response.
-    createResponse 200s headers body
+    createResponse 200s headers content
 
 /// Handle a request and return a response.
 /// This function is designed to be testable against, with out network infrastructure.
 let handlerRequest context request =
-    let route =
+    let (route, r) =
             match request with
-            | Ok r -> matchRoute context.Routes context.ErrorRoutes.notFound r.Route
+            | Ok r -> (matchRoute context.Routes context.ErrorRoutes.NotFound r.Route, Some r)
                 // TODO match on route type.
                 
                 // TODO translate HttpRequest into Request.
@@ -85,10 +76,10 @@ let handlerRequest context request =
                
             | Result.Error e ->
                 // TODO Log error.
-                context.ErrorRoutes.badRequest
+                (context.ErrorRoutes.BadRequest, None)
 
-        // Create the response and serialize it.
-    createResponse route context
+    // Create the response and serialize it.
+    createResponse context route r
     
 /// Accepts a context and a connection and handles it.
 /// This is meant to be run on a background thread.

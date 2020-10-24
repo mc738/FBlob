@@ -13,6 +13,7 @@
         <Compile Include="WebHost\Http.fs" />
         <Compile Include="WebHost\Routing.fs" />
         <Compile Include="WebHost\ConnectionHandler.fs" />
+        <Compile Include="WebHost\RoutesConfig.fs" />
         <Compile Include="WebHost\Server.fs" />
         <Compile Include="Program.fs" />
     </ItemGroup>

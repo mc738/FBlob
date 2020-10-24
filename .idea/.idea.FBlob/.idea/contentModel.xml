@@ -32,6 +32,7 @@
           <e p="ConnectionHandler.fs" t="Include" />
           <e p="DAL.fs" t="Include" />
           <e p="Http.fs" t="Include" />
+          <e p="RoutesConfig.fs" t="Include" />
           <e p="Routing.fs" t="Include" />
           <e p="Server.fs" t="Include" />
         </e>
