@@ -1,4 +1,4 @@
-namespace FBlob.Host.WebHost.Config
+namespace FBlob.Hosting.WebHost.Config
 
 
 open FBlob.Core.StoreConfig

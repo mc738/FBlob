@@ -1,14 +1,14 @@
-module FBlob.Host.WebHost.ConnectionHandler
+module FBlob.Hosting.WebHost.ConnectionHandler
 
 open System
 open System.Net.Sockets
 open System.Text
 open FUtil
 open Peeps
-open FBlob.Host.Engine
-open FBlob.Host.WebHost.Routing
-open FBlob.Host.WebHost.Http
-open FBlob.Host.WebHost.Http.ContentTypes
+open FBlob.Hosting.Engine
+open FBlob.Hosting.WebHost.Routing
+open FBlob.Hosting.WebHost.Http
+open FBlob.Hosting.WebHost.Http.ContentTypes
 
 
 type Context =
@@ -37,7 +37,7 @@ let private createResponseHeaders (contentType: ContentType) contentLength (othe
     |> Seq.append otherHeaders
     |> Map.ofSeq
 
-let private createResponse (context: Context) (route: Route) (request: Request option) =
+let private createResponse (context: Context) (route: Route) (request: HttpRequest option) =
     
     // TODO Update to call the store.
     // let _ = postRequest context.Instance.Processor

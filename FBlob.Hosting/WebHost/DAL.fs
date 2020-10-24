@@ -1,4 +1,4 @@
-module FBlob.Host.WebHost.DAL
+module FBlob.Hosting.WebHost.DAL
 
 open System.IO
 open Microsoft.Data.Sqlite

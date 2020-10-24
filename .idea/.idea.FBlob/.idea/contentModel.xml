@@ -5,6 +5,12 @@
     <e p="$USER_HOME$/.cache/JetBrains/Rider2020.2/resharper-host/local/Transient/Rider/v202/SolutionCaches/_FBlob.-1543268696.00" t="ExcludeRecursive" />
     <e p="$PROJECT_DIR$" t="IncludeFlat">
       <e p="Documentation" t="Include" />
+      <e p="FBlob.App" t="IncludeRecursive">
+        <e p="FBlob.App.fsproj" t="IncludeRecursive" />
+        <e p="Program.fs" t="Include" />
+        <e p="bin" t="ExcludeRecursive" />
+        <e p="obj" t="ExcludeRecursive" />
+      </e>
       <e p="FBlob.Console" t="IncludeRecursive">
         <e p="FBlob.Console.fsproj" t="IncludeRecursive" />
         <e p="Program.fs" t="Include" />
@@ -23,10 +29,10 @@
         <e p="bin" t="ExcludeRecursive" />
         <e p="obj" t="ExcludeRecursive" />
       </e>
-      <e p="FBlob.Host" t="IncludeRecursive">
+      <e p="FBlob.Hosting" t="IncludeRecursive">
         <e p="Engine.fs" t="Include" />
-        <e p="FBlob.Host.fsproj" t="IncludeRecursive" />
-        <e p="Program.fs" t="Include" />
+        <e p="FBlob.Hosting.fsproj" t="IncludeRecursive" />
+        <e p="Host.fs" t="Include" />
         <e p="WebHost" t="Include">
           <e p="Common.fs" t="Include" />
           <e p="Config.fs" t="Include" />

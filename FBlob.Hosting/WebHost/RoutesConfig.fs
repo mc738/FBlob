@@ -1,7 +1,7 @@
-module FBlob.Host.WebHost.RoutesConfig
+module FBlob.Hosting.WebHost.RoutesConfig
 
-open FBlob.Host.WebHost.Http.ContentTypes
-open FBlob.Host.WebHost.Routing
+open FBlob.Hosting.WebHost.Http.ContentTypes
+open FBlob.Hosting.WebHost.Routing
 
 let private index =
     { RoutePaths = seq { "/" }

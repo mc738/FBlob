@@ -1,13 +1,13 @@
-module FBlob.Host.WebHost.Server
+module FBlob.Hosting.WebHost.Server
 
 open System
 open System.IO
 open System.Net.Sockets
-open FBlob.Host.Engine
+open FBlob.Hosting.Engine
 open Peeps
-open FBlob.Host.WebHost.Http
-open FBlob.Host.WebHost.ConnectionHandler
-open FBlob.Host.WebHost.Routing
+open FBlob.Hosting.WebHost.Http
+open FBlob.Hosting.WebHost.ConnectionHandler
+open FBlob.Hosting.WebHost.Routing
 
 let logger = Logger()
 
@@ -63,7 +63,7 @@ let private start instance =
 
     let context =
         { Logger = logger
-          Routes = routeMap
+          Routes = routeMap instance.Context.Connection
           Instance = instance
           ErrorRoutes =
               { NotFound = notFound

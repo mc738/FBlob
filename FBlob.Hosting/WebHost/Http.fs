@@ -1,4 +1,4 @@
-module FBlob.Host.WebHost.Http
+module FBlob.Hosting.WebHost.Http
 
 module ContentTypes =
 

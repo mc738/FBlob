@@ -1,10 +1,10 @@
-module FBlob.Host.WebHost.Routing
+module FBlob.Hosting.WebHost.Routing
 
 open System
 open System.IO
-open FBlob.Host.WebHost.Http
-open FBlob.Host.WebHost.Http.ContentTypes
-open FBlob.Host.WebHost.DAL
+open FBlob.Hosting.WebHost.Http
+open FBlob.Hosting.WebHost.Http.ContentTypes
+open FBlob.Hosting.WebHost.DAL
 open Microsoft.Data.Sqlite
 open Microsoft.Data.Sqlite
 

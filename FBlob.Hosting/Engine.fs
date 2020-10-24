@@ -1,6 +1,7 @@
-module FBlob.Host.Engine
+module FBlob.Hosting.Engine
 
 open System
+open FBlob.Core
 open FBlob.Core.DAL.Blobs
 
 //type Action =
@@ -8,7 +9,7 @@ open FBlob.Core.DAL.Blobs
 //    | GetBlob of Guid
 
 type Instance =
-    { Processor: MailboxProcessor<Action> }
+    { Processor: MailboxProcessor<Action>; Context: Store.Context }
 
 /// The host run time, either internal (where an internal recursive loop is used) or delegated to a provided function.
 and RunType =
@@ -26,7 +27,7 @@ and Action =
     { Request: Request
       ReplyChannel: AsyncReplyChannel<Response> }
 
-let createInstance =
+let createInstance context =
 
     let mbp =
         MailboxProcessor<Action>
@@ -45,7 +46,7 @@ let createInstance =
 
                   loop ())
 
-    { Processor = mbp }
+    { Processor = mbp; Context = context }
 
 let postRequest instance request =
     instance.Processor.PostAndAsyncReply(fun r -> { Request = request; ReplyChannel = r })
