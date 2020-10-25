@@ -6,6 +6,7 @@
 
     <ItemGroup>
       <Compile Include="Engine.fs" />
+      <Compile Include="Actions.fs" />
       <Compile Include="WebHost\Common.fs" />
       <Compile Include="WebHost\Config.fs" />
       <Compile Include="WebHost\DAL.fs" />
@@ -14,6 +15,7 @@
       <Compile Include="WebHost\ConnectionHandler.fs" />
       <Compile Include="WebHost\RoutesConfig.fs" />
       <Compile Include="WebHost\Server.fs" />
+      <Compile Include="WebHost\Actions.fs" />
       <Compile Include="Host.fs" />
     </ItemGroup>
 
