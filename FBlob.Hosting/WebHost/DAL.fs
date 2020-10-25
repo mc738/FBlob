@@ -1,16 +1,67 @@
 module FBlob.Hosting.WebHost.DAL
 
+open System
 open System.IO
+open FBlob.Core.Models
+open FUtil
 open Microsoft.Data.Sqlite
 
-
-
 module Content =
+    
+    type NewContent =
+        { Reference: Guid
+          Data: byte array
+          Type: BlobType
+          HashType: HashType }
     
     type StoredContent = {
         Content: byte array
         ContentTypeLiteral: string
     }
+    
+    let private insertBlob connection newContent hash =
+        // https://docs.microsoft.com/en-us/dotnet/standard/data/sqlite/blob-io
+        let sql = """
+        INSERT INTO "__wh_content" (reference, data, hash, created_on, type, path, hash_type)
+        VALUES (@ref, zeroblob(@len), @hash, @now, @type, @path, @hashType);
+        SELECT last_insert_rowid();
+        """
+
+        // TODO Add error handling in here.
+        use comm = new SqliteCommand(sql, connection)
+
+        comm.Parameters.AddWithValue("@ref", newContent.Reference.ToString())
+        |> ignore
+        comm.Parameters.AddWithValue("@len", newContent.Data.Length)
+        |> ignore
+        comm.Parameters.AddWithValue("@hash", hash)
+        |> ignore
+        comm.Parameters.AddWithValue("@now", DateTime.UtcNow)
+        |> ignore
+        comm.Parameters.AddWithValue("@type", newContent.Type.Name)
+        |> ignore
+        comm.Parameters.AddWithValue("@path", "some/path")
+        |> ignore
+        comm.Parameters.AddWithValue("@hashType", newContent.HashType.Name)
+        |> ignore
+        comm.Prepare()
+        let rowId = comm.ExecuteScalar() :?> int64
+
+        use ms = new MemoryStream(newContent.Data)
+
+        use wStream =
+            new SqliteBlob(connection, "__wh_content", "data", rowId)
+
+        ms.CopyTo(wStream)
+
+        Ok(rowId)
+
+    let add connection (newContent: NewContent) =
+        // Prepare the new blob and insert.
+        // TODO Make preparation a pipeline.
+        match FBlob.Core.Hashing.hashData newContent.HashType newContent.Data with
+        | Ok h -> insertBlob connection newContent h
+        | Error e -> Error e
     
     let get connection reference =
         
@@ -48,11 +99,14 @@ module Content =
 
     let i = 0
     
-    
 module Routes =
     
-    let i = 0
+    type NewRoute = {
+        Route: string
+        Settings: byte array
+    }
     
+    let i = 0
     
 module Settings =
     

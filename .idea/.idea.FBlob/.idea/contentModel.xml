@@ -18,6 +18,7 @@
         <e p="obj" t="ExcludeRecursive" />
       </e>
       <e p="FBlob.Core" t="IncludeRecursive">
+        <e p="Actions.fs" t="Include" />
         <e p="Common.fs" t="Include" />
         <e p="DAL.fs" t="Include" />
         <e p="FBlob-config.json" t="Include" />
@@ -30,7 +31,6 @@
         <e p="obj" t="ExcludeRecursive" />
       </e>
       <e p="FBlob.Hosting" t="IncludeRecursive">
-        <e p="Actions.fs" t="Include" />
         <e p="Engine.fs" t="Include" />
         <e p="FBlob.Hosting.fsproj" t="IncludeRecursive" />
         <e p="Host.fs" t="Include" />

@@ -17,3 +17,13 @@ module Json =
         | :? JsonException -> Error "Input is not json"
         | :? NotSupportedException -> Error "There is no compatible JsonConverter for returnType or its serializable members."
             
+
+    let trySerialize<'a> (data: 'a) =
+        try
+            let r = JsonSerializer.Serialize<'a> data
+            
+            Ok r
+        with
+        | :? ArgumentNullException -> Error "Arguments can not be null"
+        | :? ArgumentException -> Error "InputType is not compatible with value."
+        | :? NotSupportedException -> Error "There is no compatible JsonConverter for inputType or its serializable members."

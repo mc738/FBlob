@@ -23,6 +23,7 @@
       </EmbeddedResource>
       <Compile Include="Parsing.fs" />
       <Compile Include="IO.fs" />
+      <Compile Include="Actions.fs" />
     </ItemGroup>
 
 </Project>
