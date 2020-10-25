@@ -1,4 +1,4 @@
-module FBlob.Hosting
+namespace FBlob.Hosting
 
 open FBlob.Core.Store
 open FBlob.Hosting.Engine

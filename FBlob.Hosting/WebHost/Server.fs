@@ -21,12 +21,12 @@ let private listener = TcpListener.Create(port)
 let notFound =
 
     // TODO add error handling for missing 404 (or stick this in the db in initialization).
-    let paths = seq { "NotFound"; "404" }
+    let path = "404" 
 
     let content =
         File.ReadAllBytes("/home/max/Projects/SemiFunctionalServer/ExampleWebSite/404.html")
     
-    { Paths = paths
+    { Path = path
       ContentType = ContentTypes.Html
       Handler = (fun _ -> content) }
 

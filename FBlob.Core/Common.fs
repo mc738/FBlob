@@ -98,10 +98,29 @@ module BlobTypes =
         { Name = "Binary"
           ContentType = "application/oct-stream"
           Extension = "bin" }
+    
+    let html =
+        { Name = "Html"
+          ContentType = "text/html"
+          Extension = "html" }
 
+    let css =
+        { Name = "Css"
+          ContentType = "text/css"
+          Extension = "css" }
 
-    /// TODO Use this for config.
-    let supportedTypes = [ json; text; binary ]
+    let javascript =
+        { Name = "Javascript"
+          ContentType = "text/javascript"
+          Extension = "js" }
+       
+    let supportedTypes =
+        [ json
+          text
+          binary
+          html
+          css
+          javascript ]
 
 module Hashing =
 

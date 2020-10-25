@@ -1,14 +1,8 @@
 namespace FBlob.Hosting.WebHost.Config
 
-
 open FBlob.Core.StoreConfig
 
 module Initialization =
-    let i = ()
-
-
-/// The tables needed for the web host.
-module Tables =
     
     let tables = [
         {
@@ -30,9 +24,31 @@ module Tables =
                                                      NOT NULL
                     );
             """
-            Order = 100
+            Order = 1
         }
+        {
+            Name = "__wh_routes"
+            Sql = """
+            CREATE TABLE __wh_routes (
+                        route           VARCHAR      PRIMARY KEY
+                                                     UNIQUE
+                                                     NOT NULL,
+                        settings        BLOB         NOT NULL
+                    );
+            """
+            Order = 1
+        }
+        {
+            Name = "__wh_settings"
+            Sql = """
+            CREATE TABLE __wh_settings (
+                        profile         VARCHAR      PRIMARY KEY
+                                                     UNIQUE
+                                                     NOT NULL,
+                        settings        BLOB         NOT NULL
+                    );
+            """
+            Order = 3
+        }
+        
     ]
-    
-    
-    let i = ()

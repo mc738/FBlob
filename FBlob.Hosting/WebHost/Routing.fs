@@ -1,6 +1,7 @@
 module FBlob.Hosting.WebHost.Routing
 
 open System
+open System.Collections.Generic
 open System.IO
 open System.Text.Json.Serialization
 open FBlob.Hosting.WebHost.Http
@@ -10,7 +11,7 @@ open Microsoft.Data.Sqlite
 open Microsoft.Data.Sqlite
 
 type Route =
-    { Paths: string seq
+    { Path: string
       ContentType: ContentType
       Handler: (HttpRequest -> byte array) }
 
@@ -43,11 +44,11 @@ and RouteType =
     | Action of ActionRouteType
 
 and [<CLIMutable>] RouteSetting =
-    { [<JsonPropertyName("routePaths")>]
-      RoutePaths: string seq
+    { [<JsonPropertyName("route")>]
+      Route: string
       
-      [<JsonPropertyName("routeType")>]
-      RouteType: RouteType }
+      [<JsonPropertyName("type")>]
+      Type: RouteType }
 
 and ErrorRoutes =
     { BadRequest: Route
@@ -66,7 +67,7 @@ let private createStaticRoute settings (srtSettings: StaticRouteType) (connectio
     match r with
     | Some c ->
         Ok
-            { Paths = settings.RoutePaths
+            { Path = settings.Route
               ContentType = ContentType.Literal c.ContentTypeLiteral
               Handler = fun _ -> c.Content } // TODO This should call the db each time.
     | None -> Error "" // TODO add error message.
@@ -80,13 +81,13 @@ let private createFileRoute settings frtSettings =
     | true ->
         let data = File.ReadAllBytes(frtSettings.Path)
         Ok
-            { Paths = settings.RoutePaths
+            { Path = settings.Route
               ContentType = frtSettings.ContentType
               Handler = fun _ -> data }
     | false -> Error(sprintf "Could not load static content: '%s'." frtSettings.Path)
 
 let private tryCreateRoute connection settings =
-    match settings.RouteType with
+    match settings.Type with
     | Static srt -> createStaticRoute settings srt connection
     | File frt -> createFileRoute settings frt
     | Blob brt -> Error "Not implemented"
@@ -100,25 +101,26 @@ let private createRoutes<'a, 'b> (connection: SqliteConnection) results =
     |> Seq.map handler
     |> FUtil.Results.splitResults
 
-let private createRouteMap (state: Map<string, Route>) (route: Route) =
-    let newRoutes =
-        route.Paths
-        |> Seq.map (fun r -> (r, route))
-        |> Map.ofSeq
-
-    FUtil.Maps.join state newRoutes
+//let private createRouteMap (state: Map<string, Route>) (route: Route) =
+//    let newRoutes =
+//        route.Paths
+//        |> Seq.map (fun r -> (r, route))
+//        |> Map.ofSeq
+//
+//    FUtil.Maps.join state newRoutes
 
 let createRoutesMap (routes: RouteSetting seq) (connection: SqliteConnection) =
     let (successful, errors) = createRoutes connection routes
 
     // TODO log any errors.
-    successful |> Seq.fold createRouteMap Map.empty
-
+    successful // |> Seq.fold createRouteMap Map.empty
+    |> Seq.map (fun r -> (r.Path, r))
+    |> Map.ofSeq
+    
 let matchRoute (routes: Map<string, Route>) (notFound: Route) (route: string) =
     match routes.TryFind route with
     | Some route -> route
     | None -> notFound
-
 
 // let serializeRouteSettings settings = 
 
