@@ -62,7 +62,7 @@ module Blobs =
         |> ignore
         comm.Parameters.AddWithValue("@hash", hash)
         |> ignore
-        comm.Parameters.AddWithValue("@salt", ConversionHelpers.bytesToBase64 (Passwords.generateSalt 16)) // TODO Add `generateSaltHex` upstream - FUtil.
+        comm.Parameters.AddWithValue("@salt", Passwords.generateSaltHex 16)
         |> ignore
         comm.Parameters.AddWithValue("@now", DateTime.UtcNow)
         |> ignore

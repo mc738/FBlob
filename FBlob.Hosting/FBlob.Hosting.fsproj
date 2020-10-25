@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netcoreapp3.1</TargetFramework>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <Compile Include="Engine.fs" />
+      <Compile Include="WebHost\Common.fs" />
+      <Compile Include="WebHost\Config.fs" />
+      <Compile Include="WebHost\DAL.fs" />
+      <Compile Include="WebHost\Http.fs" />
+      <Compile Include="WebHost\Routing.fs" />
+      <Compile Include="WebHost\ConnectionHandler.fs" />
+      <Compile Include="WebHost\RoutesConfig.fs" />
+      <Compile Include="WebHost\Server.fs" />
+      <Compile Include="WebHost\Actions.fs" />
+      <Compile Include="Host.fs" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\FBlob.Core\FBlob.Core.fsproj" />
+    </ItemGroup>
+
+</Project>

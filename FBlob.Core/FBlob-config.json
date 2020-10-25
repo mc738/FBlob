@@ -15,6 +15,21 @@
       "name": "Text",
       "contentType": "text/plain",
       "extension": "txt"
+    },
+    {
+      "name": "Html",
+      "contentType": "text/html",
+      "extension": "html"
+    },
+    {
+      "name": "Css",
+      "contentType": "text/css",
+      "extension": "css"
+    },
+    {
+      "name": "Javascript",
+      "contentType": "text/javascript",
+      "extension": "js"
     }
   ],
   "hashTypes": [
