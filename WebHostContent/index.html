@@ -1,12 +1,66 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>FBlob - Home</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SFS Server Test</title>
+    <link href="./css/style.css" rel="stylesheet">
 </head>
-<body>
+
+<body onload="">
+    <div class="bg">
+        <canvas id="dots">
+        </canvas>
+    </div>
+    <div id="banner">
+        <!-- <header>
+            <h1>It Worked!</h1>
+            <p>Welcome to your server!</p>
+        </header> -->
+    </div>
+
+    <main>
+        <div id="main-block">
+            <div class="block">
+                <h2>Welcome to <code>FBlob</code>!</h2>
+                <p>Your personal blob store.</p>
+                <p>You can use this portal to manage the store.</p>
+                <p>Find out more here <a href="https://github.com/mc738/FBlob">here</a>.</p>
+            </div>
+        </div>
+        <div class="content">
+            <div class="grid-3">
+                <div class="block">
+                    <h2>Blobs</h2>
+                    <small>Manage blobs and collections.</small>
+                    <ul>
+                        <li>Html</li>
+                        <li>Css</li>
+                        <li>Javscript</li>
+                        <li>Jpg</li>
+                    </ul>
+                </div>
+                <div class="block">
+                    <h2>Store</h2>
+                    <small>Manage a <code>FBlob</code> store.</small>
+                    <ul>
+                        <li>Static content</li>
+                        <li>Basic routing</li>
+                        <li>Http <code>GET</code> support</li>
+                    </ul>
+                </div>
+                <div class="block">
+                    <h2>Documentation</h2>
+                    <small>Documention relating to <code>FBlob</code></small>
+                    <p>This is page was loaded at:</p>
+                    <code id="js-test"></code>
+                </div>
+            </div>
+        </div>
+    </main>
+    <footer>
+    </footer>
 </body>
+<script src="./js/index.js"></script>
 </html>
