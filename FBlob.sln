@@ -15,6 +15,10 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FBlob.App", "FBlob.App\FBlo
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FBlob.Hosting", "FBlob.Hosting\FBlob.Hosting.fsproj", "{25676797-D181-4554-B773-3A3CC51EA409}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FBlob.Core.Tests", "FBlob.Core.Tests\FBlob.Core.Tests.fsproj", "{5F360C51-BF59-438B-A64B-8CE402309F03}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FBlob.Hosting.Tests", "FBlob.Hosting.Tests\FBlob.Hosting.Tests.fsproj", "{462A6BE0-D98B-41AC-B9BE-4985B3721533}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -37,5 +41,13 @@ Global
 		{25676797-D181-4554-B773-3A3CC51EA409}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{25676797-D181-4554-B773-3A3CC51EA409}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{25676797-D181-4554-B773-3A3CC51EA409}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5F360C51-BF59-438B-A64B-8CE402309F03}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5F360C51-BF59-438B-A64B-8CE402309F03}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5F360C51-BF59-438B-A64B-8CE402309F03}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5F360C51-BF59-438B-A64B-8CE402309F03}.Release|Any CPU.Build.0 = Release|Any CPU
+		{462A6BE0-D98B-41AC-B9BE-4985B3721533}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{462A6BE0-D98B-41AC-B9BE-4985B3721533}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{462A6BE0-D98B-41AC-B9BE-4985B3721533}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{462A6BE0-D98B-41AC-B9BE-4985B3721533}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
