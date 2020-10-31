@@ -31,7 +31,25 @@ let testUrl =
 [<EntryPoint>]
 let main argv =
 
+    use http = new HttpClient()
     
+    let urlCtx: Sources.UrlSourceContext = { Url = testUrl
+                                             Client = http }
+    
+    let fileCtx: Sources.FileSourceContext = { Path = "/home/max/Data/HelloWorld.txt" }
+    
+    let r1 = Sources.getSource (Sources.UrlSource urlCtx)
+    
+    let r2 = Sources.getSource (Sources.FileSource fileCtx)
+    
+    printfn "R1: %A" r1
+    printfn "R2: %A" r2
+    
+    
+    
+    
+    (*
+
     use http = new HttpClient()
     
     let r = Sources.getUrlSource http testUrl |> Async.RunSynchronously
@@ -100,5 +118,5 @@ let main argv =
     printfn "%A" blobs
 
 
-    printfn "Hello World from F#!"
+    printfn "Hello World from F#!"*)
     0 // return an integer exit code
