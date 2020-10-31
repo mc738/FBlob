@@ -7,6 +7,7 @@ open System.Net.Http
 open System.Text.Json
 open System.Text.Json.Serialization
 open FUtil
+open FUtil.HttpClient
 
 module Models =
 
@@ -98,7 +99,7 @@ module BlobTypes =
         { Name = "Binary"
           ContentType = "application/oct-stream"
           Extension = "bin" }
-    
+
     let html =
         { Name = "Html"
           ContentType = "text/html"
@@ -113,7 +114,7 @@ module BlobTypes =
         { Name = "Javascript"
           ContentType = "text/javascript"
           Extension = "js" }
-       
+
     let supportedTypes =
         [ json
           text
@@ -151,82 +152,102 @@ module Sources =
     type SourceContentType =
         | Json
         | Text
-
-
+        | Binary
+        
     [<CLIMutable>]
     type UrlSourceSettings =
         { [<JsonPropertyName("type")>]
           Type: string
-          
-          [<JsonPropertyName("url")>] 
+
+          [<JsonPropertyName("url")>]
           Url: string
-          
-          [<JsonPropertyName("get")>] 
+
+          [<JsonPropertyName("get")>]
           Get: bool
-          
+
           [<JsonPropertyName("set")>]
           Set: bool
-          
-          [<JsonPropertyName("collection")>] 
+
+          [<JsonPropertyName("collection")>]
           Collection: bool
-          
-          [<JsonPropertyName("contentType")>] 
+
+          [<JsonPropertyName("contentType")>]
           ContentType: SourceContentType }
 
-
-    let getUrlSource (http :HttpClient) (url: string) = async {
-        let! response = http.GetAsync(url) |> Async.AwaitTask
-        match response.IsSuccessStatusCode with
-        | true ->
-            let! content = response.Content.ReadAsStringAsync() |> Async.AwaitTask
-            return Ok content 
-        | false ->
-            let! error = response.Content.ReadAsStringAsync() |> Async.AwaitTask
-            return Error error
-    }
+    type SourceContext =
+        | UrlSource of UrlSourceContext
+        | FileSource of FileSourceContext
         
+    and UrlSourceContext = {
+        Url: string
+        Client: HttpClient
+    }
+    
+    and FileSourceContext = {
+        Path: string
+    }
+    
+    let private getUrlSource (client: HttpClient) (url: string) =
+        async { return! (tryGet ReturnType.String client url) }
+        
+    let private getFileSource path = FUtil.Files.tryReadBytes path
 
+    let private fileSourceHandler fileCtx = getFileSource fileCtx.Path
+    
+    let private urlSourceHandler urlCtx =
+        // TODO Fix this up (potentially)
+        let response = getUrlSource urlCtx.Client urlCtx.Url |> Async.RunSynchronously
+
+        match response with
+        | Ok r ->
+            match r with
+            | StringContent s ->
+                // TODO return bytes to cut out conversion and conversion back.
+                Ok (FUtil.Serialization.Utilities.stringToBytes s)
+            | StreamContent s ->
+                // TODO clean up or add toArray stream to `FUtil`.
+                use ms = new MemoryStream()
+                s.CopyTo(ms)
+                Ok (ms.ToArray())
+            
+    let getSource (context:SourceContext) =
+        match context with
+        | UrlSource urlCtx -> urlSourceHandler urlCtx
+        | FileSource fileCtx -> fileSourceHandler fileCtx
+         
 module Encryption =
-    
-    open FUtil.Encryption
-    
+
+    open FUtil.Security
+
     let private encryptor context data = encryptBytesAes context data
-    
+
     let private decryptor context cipher = decryptBytesAes context cipher
-    
+
     /// Encrypt data and append the IV to the front.
     /// The IV will be 16 bytes.
-    let encrypt (keys:Map<string,byte array>) keyRef data =
+    let encrypt (keys: Map<string, byte array>) keyRef data =
         match keys.TryFind keyRef with
-        | Some k ->            
-            let context = {
-                Key = k
-                IV = FUtil.Passwords.generateSalt 16
-            }
-            
+        | Some k ->
+            let context = { Key = k; IV = generateSalt 16 }
+
             let encrypted = encryptor context data
-            
-            let r = Array.append context.IV encrypted 
-            
-            Ok (r)
-       
-        | None -> Error (sprintf "Key `%s` not found." keyRef)
-    
-    let decrypt (keys:Map<string,byte array>) keyRef data =
-        
+
+            let r = Array.append context.IV encrypted
+
+            Ok(r)
+
+        | None -> Error(sprintf "Key `%s` not found." keyRef)
+
+    let decrypt (keys: Map<string, byte array>) keyRef data =
+
         match keys.TryFind keyRef with
         | Some k ->
             // TODO Add check that array is larger than 16.
             let (iv, cipher) = Array.splitAt 16 data
-            
-            let context = {
-                Key = k
-                IV = iv
-            }
-            
-            Ok (decryptor context cipher)
-            
-        
-        | None -> Error (sprintf "Key `%s` not found." keyRef)
+
+            let context = { Key = k; IV = iv }
+
+            Ok(decryptor context cipher)
 
 
+        | None -> Error(sprintf "Key `%s` not found." keyRef)

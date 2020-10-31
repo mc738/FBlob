@@ -31,6 +31,7 @@ module Helpers =
 module Blobs =
 
     open Models
+    open FUtil.Security
 
     type NewBlob =
         { Reference: Guid
@@ -62,7 +63,7 @@ module Blobs =
         |> ignore
         comm.Parameters.AddWithValue("@hash", hash)
         |> ignore
-        comm.Parameters.AddWithValue("@salt", Passwords.generateSaltHex 16)
+        comm.Parameters.AddWithValue("@salt", Conversions.bytesToHex (generateSalt 16)) // TODO Test this!
         |> ignore
         comm.Parameters.AddWithValue("@now", DateTime.UtcNow)
         |> ignore

@@ -27,7 +27,6 @@
         <e p="FBlob-config.json" t="Include" />
         <e p="FBlob.Core.fsproj" t="IncludeRecursive" />
         <e p="IO.fs" t="Include" />
-        <e p="Parsing.fs" t="Include" />
         <e p="Store.fs" t="Include" />
         <e p="StoreConfig.fs" t="Include" />
         <e p="bin" t="ExcludeRecursive" />
@@ -55,6 +54,13 @@
           <e p="Routing.fs" t="Include" />
           <e p="Server.fs" t="Include" />
         </e>
+        <e p="bin" t="ExcludeRecursive" />
+        <e p="obj" t="ExcludeRecursive" />
+      </e>
+      <e p="FBlob.Hosting.Tests" t="IncludeRecursive">
+        <e p="FBlob.Hosting.Tests.fsproj" t="IncludeRecursive" />
+        <e p="Program.fs" t="Include" />
+        <e p="Tests.fs" t="Include" />
         <e p="bin" t="ExcludeRecursive" />
         <e p="obj" t="ExcludeRecursive" />
       </e>

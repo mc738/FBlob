@@ -38,7 +38,7 @@ let main argv =
 
     match r with
     | Ok s ->
-        let posts = Parsing.Json.tryParse<Post seq> s
+        let posts = FUtil.Serialization.Json.tryDeserialize<Post seq> s
         
         printfn "Success: %A" posts
     | Error e -> printfn "Error: %s" e
