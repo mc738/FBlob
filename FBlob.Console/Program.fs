@@ -8,6 +8,7 @@ open System.Text.Json
 open System.Text.Json.Serialization
 open FBlob.Core
 open FBlob.Core.Models
+open FBlob.Core.Sources
 open FBlob.Core.Store
 
 [<CLIMutable>]
@@ -28,12 +29,50 @@ type Post = {
 let testUrl =
     "https://jsonplaceholder.typicode.com/posts"
 
+let testPath =
+    "/home/max/Data/HelloWorld.txt"
+
 [<EntryPoint>]
 let main argv =
 
     use http = new HttpClient()
     
-    let urlCtx: Sources.UrlSourceContext = { Url = testUrl
+    let settings = [
+        Sources.UrlSettings {
+            Url = testUrl
+            Name = "R1"
+            Get = true
+            Set = false
+            Collection = true
+            ContentType = "application/json"
+        }
+        Sources.FileSettings {
+            Path = testPath
+            Name = "R2"
+            Get = true
+            Set = false
+            Collection = false
+            ContentType = "text/plain"
+        }
+    ]
+    
+    createContexts http settings
+    |> List.map (fun c ->
+        
+        match c with
+        | UrlSource u ->
+           getSource (UrlSource u)
+        | FileSource f ->
+           getSource (FileSource f)
+        
+        )
+    |> List.map (fun r ->
+            printfn "Result: %A" r
+           
+        )
+    |> ignore
+    
+    (*let urlCtx: Sources.UrlSourceContext = { Url = testUrl
                                              Client = http }
     
     let fileCtx: Sources.FileSourceContext = { Path = "/home/max/Data/HelloWorld.txt" }
@@ -43,11 +82,8 @@ let main argv =
     let r2 = Sources.getSource (Sources.FileSource fileCtx)
     
     printfn "R1: %A" r1
-    printfn "R2: %A" r2
-    
-    
-    
-    
+    printfn "R2: %A" r2*)
+     
     (*
 
     use http = new HttpClient()

@@ -156,12 +156,12 @@ module Sources =
         
     [<CLIMutable>]
     type UrlSourceSettings =
-        { [<JsonPropertyName("type")>]
-          Type: string
-
-          [<JsonPropertyName("url")>]
+        { [<JsonPropertyName("url")>]
           Url: string
 
+          [<JsonPropertyName("name")>]
+          Name: string
+          
           [<JsonPropertyName("get")>]
           Get: bool
 
@@ -172,8 +172,32 @@ module Sources =
           Collection: bool
 
           [<JsonPropertyName("contentType")>]
-          ContentType: SourceContentType }
+          ContentType: string }
+        
+    [<CLIMutable>]
+    type FileSourceSettings =
+        { [<JsonPropertyName("path")>]
+          Path: string
 
+          [<JsonPropertyName("name")>]
+          Name: string
+          
+          [<JsonPropertyName("get")>]
+          Get: bool
+
+          [<JsonPropertyName("set")>]
+          Set: bool
+
+          [<JsonPropertyName("collection")>]
+          Collection: bool
+          
+          [<JsonPropertyName("contentType")>]
+          ContentType: string }
+
+    type SourceSettings =
+        | UrlSettings of UrlSourceSettings
+        | FileSettings of FileSourceSettings
+    
     type SourceContext =
         | UrlSource of UrlSourceContext
         | FileSource of FileSourceContext
@@ -209,12 +233,32 @@ module Sources =
                 use ms = new MemoryStream()
                 s.CopyTo(ms)
                 Ok (ms.ToArray())
+        | Error e -> Error e
+          
+    let private createContext (client: HttpClient) (settings: SourceSettings) =
+        match settings with
+        | UrlSettings s ->
+            UrlSource {
+                Url = s.Url
+                Client = client
+            }
+        | FileSettings s ->
+            FileSource {
+                Path = s.Path
+            }
+            
+    let createContexts client (settings: SourceSettings list) =
+        // use client = new HttpClient()
+        
+        let handler = createContext client
+        
+        settings |> List.map handler
             
     let getSource (context:SourceContext) =
         match context with
         | UrlSource urlCtx -> urlSourceHandler urlCtx
         | FileSource fileCtx -> fileSourceHandler fileCtx
-         
+            
 module Encryption =
 
     open FUtil.Security
