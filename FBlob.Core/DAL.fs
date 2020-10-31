@@ -43,7 +43,6 @@ module Blobs =
           HashType: HashType
           EncryptionType: EncryptionType }
 
-
     let private insertBlob connection newBlob hash =
         // https://docs.microsoft.com/en-us/dotnet/standard/data/sqlite/blob-io
         let sql = """
@@ -220,6 +219,46 @@ module Collections =
         Helpers.runSeedQuery connection "create_collection" sql p
 
 
+    let private getSourcesForCollection connection reference =
+        let sql = """
+        SELECT name, type, get, set, settings FROM sources
+        WHERE collection_ref = @ref
+        """
+        
+        let comm = new SqliteCommand(sql, connection)
+        
+        comm.Parameters.AddWithValue("@ref", reference.ToString()) |> ignore
+        
+        comm.Prepare()
+        
+        use ms = new MemoryStream()
+        
+        use reader = comm.ExecuteReader()
+
+        [
+            while reader.Read() do
+               
+                // Reset and empty the memory, to prevent data leakage.
+                ms.Flush()
+                ms.Position <- 0L
+                
+                let dataStream = reader.GetStream(4)
+                
+                dataStream.CopyTo(ms)
+                
+                yield {
+                    Name = reader.GetString(0)
+                    Type = { Name = reader.GetString(1) } 
+                    Path = "" // TODO remove `Path`
+                    CollectionRef = reference
+                    Get = reader.GetBoolean(2)
+                    Set = reader.GetBoolean(3)
+                    Settings = FUtil.Serialization.Utilities.bytesToString (ms.ToArray())
+                }
+        ]        
+    
+    
+    
     let get connection reference =
         let sql = """
         SELECT * FROM collections WHERE reference = @ref;
@@ -245,7 +284,7 @@ module Collections =
                 AnonymousWrite = reader.GetBoolean(5)
                 Blobs = Blobs.getByCollection connection reference
                 Properties = []
-                Sources = []
+                Sources = getSourcesForCollection connection reference
                 UserPermissions = Map.empty
             }
         ]

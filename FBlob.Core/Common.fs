@@ -58,7 +58,7 @@ module Models =
 
     and Source =
         { Name: string
-          Type: Source
+          Type: SourceType
           Path: string
           CollectionRef: Guid
           Get: bool
