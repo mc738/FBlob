@@ -4,6 +4,8 @@ FBlob is a portable blob store based around (currently) `Sqlite`.
 
 The goal is to offer a simple yet flexible way to store blobs in your application.
 
+Read the [documentations](/docs/Documentation.md).
+
 # Architecture
 
 `FBlob` uses a 3 tier architecture:

@@ -3,6 +3,7 @@
   <component name="ContentModelUserStore">
     <attachedFolders>
       <Path>WebHostContent</Path>
+      <Path>docs</Path>
     </attachedFolders>
     <explicitIncludes />
     <explicitExcludes />

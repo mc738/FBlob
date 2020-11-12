@@ -218,7 +218,6 @@ module Collections =
 
         Helpers.runSeedQuery connection "create_collection" sql p
 
-
     let private getSourcesForCollection connection reference =
         let sql = """
         SELECT name, type, get, set, settings FROM sources
@@ -256,9 +255,7 @@ module Collections =
                     Settings = FUtil.Serialization.Utilities.bytesToString (ms.ToArray())
                 }
         ]        
-    
-    
-    
+   
     let get connection reference =
         let sql = """
         SELECT * FROM collections WHERE reference = @ref;

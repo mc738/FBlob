@@ -2,7 +2,6 @@
 
 open System
 open FBlob.Core
-open FBlob.Core.Parsing
 open FBlob.Core.Store
 open FBlob.Hosting.Engine
 open FBlob.Hosting.WebHost
