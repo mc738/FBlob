@@ -26,6 +26,8 @@ It's aim is to be flexible in terms of data storage, integrations and functional
 
 ## Solution
 
+A glossary of terms can be found [here](/docs/Glossary.md)
+
 `FBlob` is split into 3 main projects:
 
 * [FBlob.Core](/docs/FBlob.Core.md)
