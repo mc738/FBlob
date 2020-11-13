@@ -122,7 +122,7 @@ module BlobTypes =
           html
           css
           javascript ]
-
+        
 module Hashing =
 
     open Models
@@ -145,7 +145,6 @@ module Hashing =
         | "SHA384" -> Ok(FUtil.Hashing.sha384Hex data)
         | "SHA512" -> Ok(FUtil.Hashing.sha512Hex data)
         | _ -> Error(sprintf "Algorithm `%s` not supported" hashType.Name)
-
 
 module Sources =
 

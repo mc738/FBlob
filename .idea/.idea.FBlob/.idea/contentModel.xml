@@ -67,6 +67,7 @@
       <e p="FBlob.sln" t="IncludeFlat" />
       <e p="README.md" t="Include" />
       <e p="Scripts" t="Include" />
+      <e p="TODO.md" t="Include" />
       <e p="packages" t="ExcludeRecursive" />
     </e>
   </component>
