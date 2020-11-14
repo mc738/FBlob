@@ -57,9 +57,16 @@ module Configuration =
     let defaultConfigPath = "FBlob-config.json"
 
     let loadConfig path =
-        let json = File.ReadAllText path
-        JsonSerializer.Deserialize<Config> json
-
+        let jsonR = FUtil.Files.tryReadText path
+        
+        match jsonR with
+        | Ok json ->
+            let configR = FUtil.Serialization.Json.tryDeserialize<Config> json
+            match configR with
+            | Ok config -> config
+            | Result.Error e -> failwith e
+        | Result.Error e -> failwith e
+        
     let loadDefaultConfig = loadConfig defaultConfigPath
 
 module Initialization =
