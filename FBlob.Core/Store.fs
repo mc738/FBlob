@@ -248,6 +248,8 @@ module CollectionStore =
     let get context reference = get context.Connection reference
 
     let getGeneral context = Collections.get context.Connection context.GeneralReference
+    
+    
 
 let createStore path = File.WriteAllBytes(path, Array.empty)
 

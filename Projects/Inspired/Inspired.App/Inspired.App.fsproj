@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>netcoreapp3.1</TargetFramework>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Compile Include="Program.fs" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\XDOM\XDOM.Core\XDOM.Core.fsproj" />
+      <ProjectReference Include="..\Inspired.Core\Inspired.Core\Inspired.Core.fsproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="FUtil" Version="0.1.3" />
+    </ItemGroup>
+
+</Project>

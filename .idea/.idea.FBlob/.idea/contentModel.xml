@@ -65,6 +65,26 @@
         <e p="obj" t="ExcludeRecursive" />
       </e>
       <e p="FBlob.sln" t="IncludeFlat" />
+      <e p="Projects" t="Include">
+        <e p="Inspired/Inspired.App" t="IncludeRecursive">
+          <e p="Inspired.App.fsproj" t="IncludeRecursive" />
+          <e p="Program.fs" t="Include" />
+          <e p="bin" t="ExcludeRecursive" />
+          <e p="obj" t="ExcludeRecursive" />
+        </e>
+        <e p="Inspired/Inspired.Core/Inspired.Core" t="IncludeRecursive">
+          <e p="Inspired.Core.fsproj" t="IncludeRecursive" />
+          <e p="Library.fs" t="Include" />
+          <e p="bin" t="ExcludeRecursive" />
+          <e p="obj" t="ExcludeRecursive" />
+        </e>
+        <e p="XDOM/XDOM.Core" t="IncludeRecursive">
+          <e p="Library.fs" t="Include" />
+          <e p="XDOM.Core.fsproj" t="IncludeRecursive" />
+          <e p="bin" t="ExcludeRecursive" />
+          <e p="obj" t="ExcludeRecursive" />
+        </e>
+      </e>
       <e p="README.md" t="Include" />
       <e p="Scripts" t="Include" />
       <e p="TODO.md" t="Include" />
