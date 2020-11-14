@@ -289,7 +289,4 @@ module Collections =
         match c.Length with
         | 1 -> Some c.Head
         | 0 -> None
-        | _ -> Some c.Head
-            
-        
-        
+        | _ -> Some c.Head     

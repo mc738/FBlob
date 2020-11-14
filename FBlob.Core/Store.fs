@@ -245,11 +245,9 @@ module CollectionStore =
 
         ref
 
-    let get context reference =
-        DAL.Collections.get context.Connection reference
+    let get context reference = get context.Connection reference
 
-    let getGeneral context =
-        DAL.Collections.get context.Connection context.GeneralReference
+    let getGeneral context = Collections.get context.Connection context.GeneralReference
 
 let createStore path = File.WriteAllBytes(path, Array.empty)
 
