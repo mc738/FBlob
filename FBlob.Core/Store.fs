@@ -6,6 +6,7 @@ open System.Text.Json
 open System.Text.Json.Serialization
 open FBlob.Core.DAL
 open FBlob.Core.Models
+open FBlob.Core.Sources
 open Microsoft.Data.Sqlite
 open Peeps
 open FBlob.Core.StoreConfig
@@ -210,13 +211,12 @@ module BlobStore =
     let getGeneralBlobs (context: Context) =
         getByCollection context.Connection context.GeneralReference
 
-    let addGeneralBlob (context: Context) blobType hashType (data: byte array) =
-
+    let addBlob (context: Context) collectionRef blobType hashType (data: byte array) =
         let reference = Guid.NewGuid()
 
         let newBlob =
             { Reference = reference
-              CollectionReference = context.GeneralReference
+              CollectionReference = collectionRef
               Data = data
               KeyRef = "Secret_key"
               Type = blobType
@@ -227,7 +227,9 @@ module BlobStore =
         match add context.Connection newBlob with
         | Ok _ -> Ok reference
         | Result.Error e -> Result.Error e
-
+    
+    let addGeneralBlob (context: Context) blobType hashType (data: byte array) =
+        addBlob context context.GeneralReference blobType hashType data        
 module CollectionStore =
 
     open DAL.Collections
@@ -249,8 +251,6 @@ module CollectionStore =
 
     let getGeneral context = Collections.get context.Connection context.GeneralReference
     
-    
-
 let createStore path = File.WriteAllBytes(path, Array.empty)
 
 let createContext path generalRef =
@@ -275,3 +275,21 @@ let initializeStore (config: Configuration.Config) path =
     Initialization.initialize context config
 
     context
+
+let handleSourceResult (context: Context) (collectionRef: Guid) (result: SourceResult) =
+    
+    let createBlob = BlobStore.addBlob context collectionRef BlobTypes.json Hashing.sha512 
+    
+    match result with
+    | Single s -> createBlob s |> ignore   
+    | Collection c -> c |> List.map (fun i -> createBlob i) |> ignore
+
+let populateCollectionFromSource (context: Context) (collectionRef: Guid) (sourceContext: SourceContext) =
+    
+    let r = getSource sourceContext
+    
+    match r with
+    | Ok d -> Ok (handleSourceResult context collectionRef d)
+    | Result.Error e -> Result.Error e
+    
+    

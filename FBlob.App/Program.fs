@@ -16,20 +16,8 @@ let path = "/home/max/Projects/FBlob/Projects/Inspired/quotes_1_99999.json"
 
 let sourceName = "quotes_1_99999"
 
-// TODO move this into `Sources`
-let splitter (json:byte array) =
-    
-    let buffer = System.Buffers.ReadOnlySequence<byte> json
-    
-    let doc = JsonDocument.Parse(buffer).RootElement.EnumerateArray()
-
-    [
-        for i in doc do
-            FUtil.Serialization.Utilities.stringToBytes (i.ToString())        
-    ]    
-
 // TODO move this into `Store`
-let loadFromSource =
+let createSourceContext =
     
     let settings : FileSourceSettings =
         {
@@ -43,9 +31,7 @@ let loadFromSource =
     
     use http = new HttpClient()
     
-    let context = Sources.createFileContext settings
-    
-    getSource context
+    Sources.createFileContext settings
     
 type RunMode =
     | WebHost
@@ -54,8 +40,6 @@ type RunMode =
 [<EntryPoint>]
 let main argv =
 
-    printfn "%A" loadFromSource
-    
     let config = Configuration.loadDefaultConfig
 
     let path = "/home/max/Data/test.db"
@@ -63,8 +47,14 @@ let main argv =
     let context =
         createContext path config.GeneralReference
 
+    let sourceContext = createSourceContext
+    
     context.Connection.Open()
 
+    
+    
+    printfn "%A" (Store.populateCollectionFromSource context context.GeneralReference sourceContext)
+    
     let content =
         [ { Reference = Guid.NewGuid()
             Data = System.IO.File.ReadAllBytes "/home/max/Projects/SemiFunctionalServer/ExampleWebSite/index.html"
