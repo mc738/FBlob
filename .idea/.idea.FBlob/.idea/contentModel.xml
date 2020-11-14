@@ -22,7 +22,13 @@
       </e>
       <e p="FBlob.Core" t="IncludeRecursive">
         <e p="Actions.fs" t="Include" />
-        <e p="Common.fs" t="Include" />
+        <e p="Common" t="Include">
+          <e p="BlobTypes.fs" t="Include" />
+          <e p="Encryption.fs" t="Include" />
+          <e p="Hashing.fs" t="Include" />
+          <e p="Models.fs" t="Include" />
+          <e p="Sources.fs" t="Include" />
+        </e>
         <e p="DAL.fs" t="Include" />
         <e p="FBlob-config.json" t="Include" />
         <e p="FBlob.Core.fsproj" t="IncludeRecursive" />

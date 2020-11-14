@@ -2,14 +2,12 @@
 
 open System
 open System.Net.Http
-open System.Text.Json
-open FBlob.Core
-open FBlob.Core.Sources
+open FBlob.Core.Common
+open FBlob.Core.Common.Sources
 open FBlob.Core.Store
 open FBlob.Hosting.Engine
 open FBlob.Hosting.WebHost
 open FBlob.Hosting.WebHost.DAL.Content
-open FBlob.Hosting.WebHost.Routing
 open Peeps
 
 let path = "/home/max/Projects/FBlob/Projects/Inspired/quotes_1_99999.json"
@@ -47,13 +45,15 @@ let main argv =
     let context =
         createContext path config.GeneralReference
 
-    let sourceContext = createSourceContext
+    //let sourceContext = createSourceContext
     
     context.Connection.Open()
 
+    // printfn "%A" (Store.populateCollectionFromSource context context.GeneralReference sourceContext)
     
+    let ref = Guid.Parse("859943f8-adce-47bb-8b3a-09ea300aefee")
     
-    printfn "%A" (Store.populateCollectionFromSource context context.GeneralReference sourceContext)
+    let b = BlobStore.getBlob context ref
     
     let content =
         [ { Reference = Guid.NewGuid()
@@ -68,10 +68,6 @@ let main argv =
             Data = System.IO.File.ReadAllBytes "/home/max/Projects/SemiFunctionalServer/ExampleWebSite/js/index.js"
             Type = BlobTypes.javascript
             HashType = Hashing.sha512 } ]
-
-
-    
-    
 
     //let _ =
     //    content

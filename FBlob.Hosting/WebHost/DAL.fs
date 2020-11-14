@@ -2,7 +2,8 @@ module FBlob.Hosting.WebHost.DAL
 
 open System
 open System.IO
-open FBlob.Core.Models
+open FBlob.Core.Common
+open FBlob.Core.Common.Models
 open FUtil
 open Microsoft.Data.Sqlite
 
@@ -59,7 +60,7 @@ module Content =
     let add connection (newContent: NewContent) =
         // Prepare the new blob and insert.
         // TODO Make preparation a pipeline.
-        match FBlob.Core.Hashing.hashData newContent.HashType newContent.Data with
+        match Hashing.hashData newContent.HashType newContent.Data with
         | Ok h -> insertBlob connection newContent h
         | Error e -> Error e
     

@@ -4,7 +4,7 @@ open System
 open System.IO
 open FBlob.Core
 open FBlob.Core.Actions
-open FBlob.Core.Models
+open FBlob.Core.Common
 open FBlob.Core.Store
 open FBlob.Hosting
 open FBlob.Hosting.WebHost.DAL.Content

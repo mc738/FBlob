@@ -2,11 +2,11 @@ module FBlob.Core.Store
 
 open System
 open System.IO
-open System.Text.Json
 open System.Text.Json.Serialization
+open FBlob.Core.Common
+open FBlob.Core.Common.Sources
 open FBlob.Core.DAL
-open FBlob.Core.Models
-open FBlob.Core.Sources
+open FBlob.Core.Common.Models
 open Microsoft.Data.Sqlite
 open Peeps
 open FBlob.Core.StoreConfig
@@ -85,7 +85,7 @@ module Initialization =
             INSERT INTO hash_types
             VALUES (@name);
             """
-
+            
         // Need to stop the seq being lazy (i.e. make it list),
         // or nothing happens!
         supportedTypes
@@ -165,7 +165,6 @@ module Initialization =
         |> List.ofSeq
         |> List.map (fun c -> createCollection context c.Reference c.Name c.AllowAnonymousRead c.AllowAnonymousWrite)
 
-    /// Create the initialize tables in `Sqlite` tables.
     let private createTables conn =
 
         let handler = createTable conn
@@ -177,8 +176,6 @@ module Initialization =
 
         results
 
-    
-    /// Seed initial data.
     let private seedData context (config: Config) =
         // TODO Make a pipeline.
         seedHashTypes context config.HashTypes |> ignore
@@ -291,5 +288,3 @@ let populateCollectionFromSource (context: Context) (collectionRef: Guid) (sourc
     match r with
     | Ok d -> Ok (handleSourceResult context collectionRef d)
     | Result.Error e -> Result.Error e
-    
-    
