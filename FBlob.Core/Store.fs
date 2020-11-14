@@ -276,7 +276,7 @@ let initializeStore (config: Configuration.Config) path =
 
     context
 
-let handleSourceResult (context: Context) (collectionRef: Guid) (result: SourceResult) =
+let private handleSourceResult (context: Context) (collectionRef: Guid) (result: SourceResult) =
     
     let createBlob = BlobStore.addBlob context collectionRef BlobTypes.json Hashing.sha512 
     
