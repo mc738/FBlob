@@ -10,7 +10,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="FUtil" Version="0.1.2" />
+      <PackageReference Include="FUtil" Version="0.1.3" />
       <PackageReference Include="Microsoft.Data.Sqlite" Version="3.1.9" />
       <PackageReference Include="Peeps" Version="0.1.0" />
     </ItemGroup>
@@ -21,7 +21,6 @@
       <EmbeddedResource Include="FBlob-config.json">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </EmbeddedResource>
-      <Compile Include="Parsing.fs" />
       <Compile Include="IO.fs" />
       <Compile Include="Actions.fs" />
     </ItemGroup>
