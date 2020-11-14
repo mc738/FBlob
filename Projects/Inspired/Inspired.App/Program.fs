@@ -2,7 +2,7 @@
 
 open System
 open System.Text.Json
-open FBlob.Core
+open FBlob.Core.Common
 open XDOM.Core.Models
 
 let settings =

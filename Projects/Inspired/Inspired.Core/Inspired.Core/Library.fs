@@ -3,7 +3,7 @@
 
 module Initialization =
 
-    open FBlob.Core.Sources
+    open FBlob.Core.Common.Sources
 
     let source path =
         FileSettings

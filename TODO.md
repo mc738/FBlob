@@ -9,24 +9,28 @@
 ## Blobs
 
 * ~~Add~~
-* Read
+* ~~Read~~
 * Update
 * Delete
 
 ## Collections
 
 * ~~Add~~
-* Read
+* ~~Read~~
 * Update
 * Delete
 
 ## Sources
 
-* Link up to collections
-* Handle single sources
-* Handle collection sources
+* ~~Link up to collections~~
+* ~~Handle single sources~~
+* ~~Handle collection sources~~
 
 ## Actions
+
+* Implement
+
+## Indexes
 
 * Implement
 

@@ -4,7 +4,8 @@ open System
 open System.IO
 open FUtil
 open Microsoft.Data.Sqlite
-open FBlob.Core.Models
+open FBlob.Core.Common.Models
+open FBlob.Core.Common.Hashing
 
 
 // module Shim =
@@ -30,7 +31,6 @@ module Helpers =
 
 module Blobs =
 
-    open Models
     open FUtil.Security
 
     type NewBlob =
@@ -93,7 +93,7 @@ module Blobs =
     let add connection (newBlob: NewBlob) =
         // Prepare the new blob and insert.
         // TODO Make preparation a pipeline.
-        match Hashing.hashData newBlob.HashType newBlob.Data with
+        match hashData newBlob.HashType newBlob.Data with
         | Ok h -> insertBlob connection newBlob h
         | Error e -> Error e
 

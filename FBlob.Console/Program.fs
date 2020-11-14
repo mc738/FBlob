@@ -1,15 +1,9 @@
 ﻿// Learn more about F# at http://fsharp.org
 
-open System
-open System.IO
 open System.Net.Http
-open System.Text
-open System.Text.Json
 open System.Text.Json.Serialization
-open FBlob.Core
-open FBlob.Core.Models
-open FBlob.Core.Sources
-open FBlob.Core.Store
+open FBlob.Core.Common
+open FBlob.Core.Common.Sources
 
 [<CLIMutable>]
 type Post = {
@@ -38,7 +32,7 @@ let main argv =
     use http = new HttpClient()
     
     let settings = [
-        Sources.UrlSettings {
+        UrlSettings {
             Url = testUrl
             Name = "R1"
             Get = true
@@ -46,7 +40,7 @@ let main argv =
             Collection = true
             ContentType = "application/json"
         }
-        Sources.FileSettings {
+        FileSettings {
             Path = testPath
             Name = "R2"
             Get = true

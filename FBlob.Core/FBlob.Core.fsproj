@@ -5,17 +5,18 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <Compile Include="Common.fs" />
-        <Compile Include="DAL.fs" />
-    </ItemGroup>
-
-    <ItemGroup>
       <PackageReference Include="FUtil" Version="0.1.3" />
       <PackageReference Include="Microsoft.Data.Sqlite" Version="3.1.9" />
       <PackageReference Include="Peeps" Version="0.1.0" />
     </ItemGroup>
 
     <ItemGroup>
+      <Compile Include="Common\Models.fs" />
+      <Compile Include="Common\BlobTypes.fs" />
+      <Compile Include="Common\Hashing.fs" />
+      <Compile Include="Common\Sources.fs" />
+      <Compile Include="Common\Encryption.fs" />
+      <Compile Include="DAL.fs" />
       <Compile Include="StoreConfig.fs" />
       <Compile Include="Store.fs" />
       <EmbeddedResource Include="FBlob-config.json">
