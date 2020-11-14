@@ -67,23 +67,11 @@ module Initialization =
     open Configuration
 
     let defaultConfigPath = "FBlob-config.json"
-
-    let createTable conn (table: Table) =
+ 
+    let private createTable conn (table: Table) =
         Helpers.runNonQuery conn table.Name table.Sql
-
-    /// Create the initialize tables in `Sqlite` tables.
-    let createTables conn =
-
-        let handler = createTable conn
-
-        let results =
-            tables
-            |> List.sortBy (fun t -> t.Order)
-            |> List.map handler
-
-        results
-
-    let seedHashTypes conn supportedTypes =
+   
+    let private seedHashTypes conn supportedTypes =
 
         let commandText = """
             INSERT INTO hash_types
@@ -98,7 +86,7 @@ module Initialization =
             let p = [ ("@name", name) ] |> Map.ofList
             Helpers.runSeedQuery conn "seed_hash_types" commandText p)
 
-    let seedBlobTypes context (blobTypes: BlobTypeConfig seq) =
+    let private seedBlobTypes context (blobTypes: BlobTypeConfig seq) =
         let sql = """
         INSERT INTO blob_types
         VALUES (@name, @contentType, @extension)
@@ -115,7 +103,7 @@ module Initialization =
 
             Helpers.runSeedQuery context "seed_blob_types" sql p)
 
-    let seedSourceTypes conn supportedTypes =
+    let private seedSourceTypes conn supportedTypes =
 
         let commandText = """
             INSERT INTO source_types
@@ -130,7 +118,7 @@ module Initialization =
             let p = [ ("@name", name) ] |> Map.ofList
             Helpers.runSeedQuery conn "seed_source_types" commandText p)
 
-    let seedEncryptionTypes context supportedTypes =
+    let private seedEncryptionTypes context supportedTypes =
         let sql = """
             INSERT INTO encryption_types
             VALUES (@name, zeroblob(1));
@@ -144,7 +132,8 @@ module Initialization =
             let p = [ ("@name", name) ] |> Map.ofList
             Helpers.runSeedQuery context "seed_hash_types" sql p)
 
-    let createCollection context reference name (anonRead: bool) (anonWrite: bool) =
+    // TODO this should be in `DAL`.
+    let private createCollection context reference name (anonRead: bool) (anonWrite: bool) =
         let sql = """
         INSERT INTO collections
         VALUES (@ref, @name, @now, zeroblob(1), @anonRead, @anonWrite)
@@ -160,16 +149,29 @@ module Initialization =
 
         Helpers.runSeedQuery context "create_collection" sql p
 
-    let createGeneralCollection context generalReference =
+    let private createGeneralCollection context generalReference =
         createCollection context generalReference "_general" true true
 
-    let createCollections context (collections: CollectionConfig seq) =
+    let private createCollections context (collections: CollectionConfig seq) =
         collections
         |> List.ofSeq
         |> List.map (fun c -> createCollection context c.Reference c.Name c.AllowAnonymousRead c.AllowAnonymousWrite)
 
+    /// Create the initialize tables in `Sqlite` tables.
+    let private createTables conn =
+
+        let handler = createTable conn
+
+        let results =
+            tables
+            |> List.sortBy (fun t -> t.Order)
+            |> List.map handler
+
+        results
+
+    
     /// Seed initial data.
-    let seedData context (config: Config) =
+    let private seedData context (config: Config) =
         // TODO Make a pipeline.
         seedHashTypes context config.HashTypes |> ignore
         seedBlobTypes context config.BlobTypes |> ignore
@@ -180,6 +182,12 @@ module Initialization =
         createGeneralCollection context (config.GeneralReference.ToString())
         |> ignore
         createCollections context config.Collections
+        |> ignore
+
+    let initialize context config =
+        createTables context.Connection
+        |> ignore
+        seedData context.Connection config
         |> ignore
 
 module BlobStore =
@@ -236,8 +244,6 @@ module CollectionStore =
     let getGeneral context =
         DAL.Collections.get context.Connection context.GeneralReference
 
-let i = 0
-
 let createStore path = File.WriteAllBytes(path, Array.empty)
 
 let createContext path generalRef =
@@ -259,11 +265,6 @@ let initializeStore (config: Configuration.Config) path =
 
     context.Connection.Open()
 
-    Initialization.createTables context.Connection
-    |> ignore
-    Initialization.seedData context.Connection config
-    |> ignore
+    Initialization.initialize context config
 
     context
-
-// Create a new blob store object
