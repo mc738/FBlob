@@ -309,14 +309,12 @@ module Encryption =
 
     let decrypt (keys: Map<string, byte array>) keyRef data =
 
-        match keys.TryFind keyRef with
-        | Some k ->
-            // TODO Add check that array is larger than 16.
+        match (keys.TryFind keyRef, Array.length data >= 16) with
+        | Some k, true ->
             let (iv, cipher) = Array.splitAt 16 data
 
             let context = { Key = k; IV = iv }
 
             Ok(decryptor context cipher)
-
-
-        | None -> Error(sprintf "Key `%s` not found." keyRef)
+        | None, _ -> Error(sprintf "Key `%s` not found." keyRef)
+        | _, false -> Error "Data length less than 16, no attached iv." 
