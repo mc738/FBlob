@@ -39,6 +39,9 @@
         <e p="obj" t="ExcludeRecursive" />
       </e>
       <e p="FBlob.Core.Tests" t="IncludeRecursive">
+        <e p="Common" t="Include">
+          <e p="Encryption.fs" t="Include" />
+        </e>
         <e p="FBlob.Core.Tests.fsproj" t="IncludeRecursive" />
         <e p="Program.fs" t="Include" />
         <e p="Tests.fs" t="Include" />
